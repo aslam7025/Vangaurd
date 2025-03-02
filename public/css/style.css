@@ -317,11 +317,13 @@ ol {
 
 .header {
 	background: #ffffff;
+	width: 100%;
 }
 
 .header__top {
 	background: #111111;
-	padding: 10px 0;
+	width: 100%;
+	 
 }
 
 .header__top__left p {
@@ -543,6 +545,7 @@ ol {
 .canvas__open {
 	display: none;
 }
+ 
 
 /*---------------------
   Hero

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+    <title>Sign Up with OTP</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        div{padding-top: 10px;}
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f5f5f5;
+        }
+
+        .signup-container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 50px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 500px;
+            margin: 1rem;
+        }
+
+        .form-title {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+            width: 100%;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #555;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+            background-color: #f1f1edee;
+            color: #555;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #98780d;
+        }
+
+        button {
+            width: 100%;
+            padding: 1rem;
+            background-color: black;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #98780d;
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .login-link a {
+            color: #98780d;
+            text-decoration: none;
+        }
+
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+
+        .otp-container {
+            display: none;
+            margin-top: 1rem;
+        }
+
+        .error-message {
+            color: red;
+            font-size: 0.75rem;
+            display: none;
+        }
+
+        .timer {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #2e260d;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="signup-container">
+        <h2 class="form-title">Sign Up</h2>
+
+        <form id="verify-otp" method="post" action="/verify-otp" onsubmit=" return validateOTPForm()">
+            <div class="form-group">
+                <input type="text" id="otp" name="otp" placeholder="Enter OTP" required>
+          </div>
+          <div>  <p id="timer">OTP expires in 60 seconds</p></div>
+          <div>   <button type="submit">Verify OTP</button></div> 
+          <div> <button type="button" class="btn btn-secondary" onclick="resendOTP()">Resend OTP</button></div>
+           
+        </form>
+        <div class="login-link">
+            Already have an account? <a href="login.html">Login</a>
+        </div>
+    </div>
+
+    <script>
+        
+
+         let timerInterval
+
+        function startTimer(duration) {
+            clearInterval(timerInterval)
+            let timer = duration;
+            let display = document.getElementById('timer');
+
+            display.textContent = "OTP expires in " + timer + " seconds";
+            
+            timerInterval = setInterval(function () {
+               let seconds = parseInt(timer % 60);
+                display.textContent = "OTP expires in " + seconds + " seconds";
+                
+                if (--timer < 0) {
+                    clearInterval(timerInterval);
+                    display.textContent = "OTP expired. Request a new one.";
+                }
+            }, 1000);
+        }
+
+
+        function validateOTPForm(){
+            const otpInput = document.getElementById('otp').value
+
+            $.ajax({
+                type:"POST",
+                url:"/verify-otp",
+                contentType: "application/json", 
+                data:JSON.stringify({otp:otpInput}),
+                success:function(response){
+                    if(response.success){  
+                        Swal.fire({
+                            icon:"success",
+                            title:"OTP Verified Success",
+                            showConfirmButton:false,
+                            timer:1500,
+                        }).then(() => {
+                            window.location.href = response.redirectUrl;
+                        })
+                    }  
+                    else{ 
+                        Swal.fire({
+                            icon:"error",
+                            title:"Error",
+                            text:response.message,
+                            
+                        })
+                  }  
+                },
+                error: function(){
+                    Swal.fire({
+                        icon:"error",
+                        title:"Invalid OTP",
+                        text:"please try again"
+                    })
+                }
+            })
+            return false
+        }
+
+
+     
+
+        function resendOTP(){
+            clearInterval(timerInterval)
+            
+            document.getElementById('otp').disabled = false
+            document.getElementById('timer').classList.remove('expired')
+            startTimer(60)
+            $.ajax({
+                type:'POST',
+                url:"/resend-otp",
+                success:function(response){
+                    if(response.success){
+                        Swal.fire({
+                            icon:"success",
+                            title:"OTP Resend Successfully",
+                            showConfirmButton:false,
+                            timer:1500,
+                        })
+                    }else{
+                      Swal.fire({
+                        icon:"error",
+                        title:"Error",
+                        text:"An error occured while resending OTP. Please try again later"
+                      })
+                    }
+                }
+            })
+            return false
+        }
+        $(document).ready(function (){
+            startTimer(60)
+        })
+    </script>
+   
+</body>
+  
+</html>
