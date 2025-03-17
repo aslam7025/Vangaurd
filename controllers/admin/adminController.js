@@ -1,6 +1,7 @@
-const User = require('../../models/userScheema')
+const User = require('../../models/userSchema')
 const mongoose = require('mongoose')
 const bcrypt = require('bcrypt')
+
 
 
 
@@ -19,17 +20,13 @@ const loadLogin = (req,res) => {
 const login = async (req,res) => {
     try{
         const {email,password} = req.body
-        console.log(email,password)
-
         const admin = await User.findOne({email,isAdmin:true})
-        console.log(admin)
+         
 
         if(admin){
-
-            const passwordMatch =  bcrypt.compare(password,admin.password)
+            const passwordMatch = await bcrypt.compare(password,admin.password)
             if(passwordMatch){
                 req.session.admin = true
-                console.log(req.session.admin)
                 return res.redirect('/admin/dashboard')
             }else{
                 return res.redirect('/admin/login')
@@ -47,20 +44,20 @@ const login = async (req,res) => {
     }
 }
 
+
+
 const loadDashboard = async (req,res) => {
 
-    
         if(req.session.admin)
             try{
             res.render('admin-dashboard')
 
-        
     } catch (error) {
         res.redirect('/pageerror')
-        
     }
-    
 }
+
+
 
 const logout = async (req,res)=>{
     try {

@@ -1,0 +1,437 @@
+<%- include("../../views/partials/user/header") %>
+<style> 
+
+  /* Add shop page variables and base styles */
+  :root {
+    --primary-color: #3a86ff;
+    --secondary-color: #ff006e;
+    --accent-color: #8338ec;
+    --light-bg: #f8f9fa;
+    --dark-text: #212529;
+    --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --hover-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
+    --border-radius: 12px;
+    --transition-speed: 0.3s;
+  }
+
+  /* Main container alignment */
+  .product-detail-page {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--card-shadow);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  /* Image gallery styling */
+  .detail-gallery {
+    background: var(--light-bg);
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+  }
+
+  .main-image img {
+    width: 100%;
+    height: 500px;
+    object-fit: contain;
+    border-radius: var(--border-radius);
+    background: white;
+    padding: 1rem;
+    box-shadow: var(--card-shadow);
+  }
+
+  .slider-nav-thumbnails {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .slider-nav-thumbnails img {
+    border: 2px solid transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all var(--transition-speed);
+    background: white;
+    padding: 0.5rem;
+    box-shadow: var(--card-shadow);
+  }
+
+  .slider-nav-thumbnails img:hover {
+    border-color: var(--primary-color);
+    transform: scale(1.05);
+  }
+
+  /* Product info styling */
+  .title-detail {
+    font-size: 2rem;
+    color: var(--dark-text);
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+  }
+
+  .product-price-cover {
+    margin: 2rem 0;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .text-brand {
+    font-size: 1.75rem;
+    color: var(--secondary-color);
+    font-weight: 700;
+  }
+
+  .old-price {
+    color: #888;
+    text-decoration: line-through;
+    font-size: 1.2rem;
+  }
+
+  /* Form elements styling */
+  .size-selector select {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    transition: all var(--transition-speed);
+    background: white;
+    box-shadow: var(--card-shadow);
+  }
+
+  .size-selector select:focus {
+   
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(58, 134, 255, 0.1);
+  }
+
+  /* Quantity controls */
+  .detail-qty {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 2rem 0;
+    
+  }
+
+  .detail-qty a {
+    padding: 0.8rem 1.2rem;
+    background: var(--light-bg);
+    border-radius: var(--border-radius);
+    color: var(--dark-text);
+    transition: all var(--transition-speed);
+    box-shadow: var(--card-shadow);
+    height: 30px;
+    width: 30px;
+  }
+
+  .detail-qty a:hover {
+    background: #98780d ;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: var(--hover-shadow);
+  }
+
+  /* Add to cart button */
+  .button-add-to-cart {
+    background:black;
+    color: white;
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    transition: all var(--transition-speed);
+    width: 100%;
+    border: none;
+    cursor: pointer;
+    box-shadow: var(--card-shadow);
+  }
+
+  .button-add-to-cart:hover {
+    background:  #98780d;
+    transform: translateY(-2px);
+    box-shadow: var(--hover-shadow);
+  }
+
+  /* Product meta info */
+  .product-meta {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 2px solid var(--light-bg);
+    font-size: 0.9rem;
+    color: #666;
+  }
+
+  /* Responsive design */
+  @media (max-width: 768px) {
+    .product-detail-page {
+      padding: 1.5rem;
+      margin: 1rem;
+    }
+
+    .main-image img {
+      height: 300px;
+    }
+
+    .slider-nav-thumbnails {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .title-detail {
+      font-size: 1.5rem;
+    }
+
+    .text-brand {
+      font-size: 1.4rem;
+    }
+  }
+  .detail-qty a {
+    padding: 0.8rem 1.2rem;
+    background: #000000;
+    border-radius: 20px;
+    color: white;
+    transition: all var(--transition-speed);
+    box-shadow: var(--card-shadow);
+}
+.qty-val {
+    height: 34px;
+    width: 50px;
+    padding-left: 19px;
+    font-size: 23px;
+}
+.fi-rs-angle-small-down{
+  position: relative;
+    bottom: 11px;
+    right: 5px;
+}
+.fi-rs-angle-small-up{
+  position: relative;
+    bottom: 11px;
+    right: 5px;
+}
+
+
+.image-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+}
+
+.image-box {
+    width: 100px; /* Adjust as needed */
+    height: 100px; /* Adjust as needed */
+    border: 1px solid #ddd;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    border-radius: 8px; /* Optional for rounded corners */
+}
+
+.image-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+}
+
+.image-box img:hover {
+    transform: scale(1.1); /* Adds a slight zoom effect on hover */
+}
+.nice-select{
+  border-color: none
+  ;
+}
+
+</style>
+
+<!-- Keep all existing HTML structure and EJS variables -->
+<!-- ... rest of the product detail page HTML ... -->
+
+<!-- Keep all existing HTML structure and EJS variables -->
+<!-- ... rest of the product detail page HTML ... -->
+
+
+ 
+
+
+<main class="main">
+ <div class="page-header breadcrumb-wrap">
+     <div class="container">
+         <div class="breadcrumb">
+             <a href="/" rel="nofollow">Home</a>
+             <span></span> Vangaurd
+             <span></span>product detail page
+         </div>
+     </div>
+ </div>
+ <section class="mt-50 mb-50">
+     <div class="container">
+         <div class="row">
+             <div class="col-lg-9">
+                 <div class="product-detail accordion-detail">
+                     <div class="row mb-50">
+                         <div class="col-md-6 col-sm-12 col-xs-12">
+                             <div class="detail-gallery">
+                                 <span class="zoom-icon"><i class="fi-rs-search"></i></span>
+                                 <div class="product-image-slider">
+                                     <figure class="border-radius-10">
+                                         <img src="/uploads/re-image/<%=product.productImage[0]%>" 
+                                              alt="<%=product.productName%>" 
+                                              id="mainImage" 
+                                              data-zoom-image="/uploads/re-image/<%=product.productImage[0]%>">
+                                     </figure>
+                                 </div>
+                                 <div class="image-container d-flex flex-wrap gap-2 pl-15 pr-15">
+                                     <% for(let i = 0; i < product.productImage.length; i++) { %>
+                                         <div class="image-box">
+                                             <img  
+                                                  src="/uploads/re-image/<%=product.productImage[i]%>" 
+                                                  alt="Thumbnail <%=i+1%>" 
+                                                  class="thumbnail" 
+                                                  onclick="document.getElementById('mainImage').src = this.src">
+                                         </div>
+                                     <% } %>
+                                 </div>
+                             </div>
+                         </div>
+                         <div class="col-md-6 col-sm-12 col-xs-12">
+                             <div class="detail-info">
+                                 <h2 class="title-detail"><%=product.productName%></h2>
+                                 <div class="clearfix product-price-cover">
+                                     <div class="product-price primary-color float-left">
+                                         <ins><span class="text-brand" id="dynamic-price">
+                                             ₹<%= (sizes && sizes[0].salePrice) ? sizes[0].salePrice.toLocaleString('en-IN') : '0' %>
+                                         </span></ins>
+                                         <ins><span class="old-price font-md ml-15" id="dynamic-regPrice">
+                                             ₹<%= (sizes && sizes[0].regularPrice) ? sizes[0].regularPrice.toLocaleString('en-IN') : '0' %>
+                                         </span></ins>
+                                         <% if(totalOffer) { %>
+                                             <span class="save-price font-md color3 ml-15" style="color: var(--secondary-color);">
+                                                 <%=totalOffer%>% OFF
+                                             </span>
+                                         <% } %>
+                                     </div>
+                                 </div>
+                                 <div class="bt-1 border-color-1 mt-15 mb-15"></div>
+                                 <div class="short-desc mb-30">
+                                     <p><%=product.description%></p>
+                                 </div>
+                                 <div class="product_sort_info font-xs mb-30">
+                                     <ul>
+                                         <li class="mb-10"><i class="fi-rs-crown mr-5"></i> 1 Year Brand Warranty</li>
+                                         <li class="mb-10"><i class="fi-rs-refresh mr-5"></i> 30 Day Return Policy</li>
+                                         <li><i class="fi-rs-credit-card mr-5"></i> Cash on Delivery available</li>
+                                     </ul>
+                                 </div>
+                                 <div class="size-selector mb-30">
+                                     <label><strong>Select Size:</strong></label>
+                                     <select id="size-select" class="size-dropdown" onchange="updatePrice()">
+                                         <% product.sizes.forEach((size, i) => { %>
+                                             <option value="<%=size.salePrice%>"
+                                                 data-saleprice="<%= size.salePrice %>"
+                                                 data-regularprice="<%= size.regularPrice %>">
+                                                 <%=size.size%> - ₹<%=size.salePrice.toLocaleString('en-IN')%>
+                                             </option>
+                                         <% }); %>
+                                     </select>
+                                 </div>
+                                 <div class="detail-extralink">
+                                     <div class="detail-qty border radius">
+                                         <a href="#" class="qty-down" data-change="-1"><i class="fi-rs-angle-small-down">-</i></a>
+                                         <span class="qty-val" id="quantity">1</span>
+                                         <a href="#" class="qty-up" data-change="1"><i class="fi-rs-angle-small-up">+</i></a>
+                                     </div>
+                                     <div class="product-extra-link2">
+                                         <form action="/addTocart" method="post">
+                                             <input type="hidden" name="productId" value="<%=product._id%>">
+                                             <input type="hidden" id="selectedSize" name="size" value="<%= product.sizes[0].size %>">
+                                             <button type="submit" class="button button-add-to-cart">Add to cart</button>
+                                         </form>
+                                         <a aria-label="Add To Wishlist" class="action-btn hover-up" href="#"><i class="fi-rs-heart"></i></a>
+                                     </div>
+                                 </div>
+                                 <ul class="product-meta font-xs color-grey mt-50">
+                                     <li class="mb-5">Brand: <%=product.brand%></li>
+                                     <li class="mb-5">Category: <%=category.name%></li>
+                                     <li>Stock: <span class="in-stock text-success ml-5"><%=quantity%> items available</span></li>
+                                 </ul>
+                             </div>
+                         </div>
+                     </div>
+                 </div>
+             </div>
+         </div>
+     </div>
+ </section>
+</main>
+<%- include("../../views/partials/user/footer") %>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/elevatezoom/3.0.8/jquery.elevatezoom.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Quantity controls
+    document.querySelectorAll('[data-change]').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const quantityElement = document.getElementById('quantity');
+            const change = parseInt(this.dataset.change);
+            let quantity = parseInt(quantityElement.textContent) + change;
+            quantity = Math.max(1, quantity);
+            quantityElement.textContent = quantity;
+        });
+    });
+
+    // Size selector handler
+    const sizeSelect = document.getElementById('size-select');
+    if(sizeSelect) {
+        sizeSelect.addEventListener('change', function() {
+            document.getElementById('selectedSize').value = 
+                this.options[this.selectedIndex].text.split(" - ")[0];
+            updatePrice();
+        });
+    }
+
+    // Initialize image zoom
+    $('#mainImage').elevateZoom({
+        zoomType: "lens",
+        lensShape: "round",
+        lensSize: 150,
+        scrollZoom: true
+    });
+
+    // Thumbnail click handler
+    document.querySelectorAll('.thumbnail').forEach(thumb => {
+        thumb.addEventListener('click', function() {
+            const newSrc = this.src;
+            $('#mainImage')
+                .attr('src', newSrc)
+                .data('zoom-image', newSrc)
+                .elevateZoom({ 
+                    zoomType: "lens", 
+                    lensShape: "round", 
+                    lensSize: 150, 
+                    scrollZoom: true 
+                });
+        });
+    });
+});
+
+function updatePrice() {
+    const sizeSelect = document.getElementById('size-select');
+    const selectedOption = sizeSelect.options[sizeSelect.selectedIndex];
+    
+    document.getElementById("dynamic-price").textContent = 
+        `₹${parseInt(selectedOption.dataset.saleprice).toLocaleString('en-IN')}`;
+    document.getElementById("dynamic-regprice").textContent = 
+        `₹${parseInt(selectedOption.dataset.regularprice).toLocaleString('en-IN')}`;
+}
+</script>

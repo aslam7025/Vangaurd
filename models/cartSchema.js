@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
-const Product = require('./productScheema')
+const Product = require('./productSchema')
+const { type } = require('express/lib/response')
 const {Schema} = mongoose
 
 
@@ -11,7 +12,7 @@ const cartSchema = new Schema({
         required:true
     },
     items:[{
-        ProductId:{
+        productId:{
             type:Schema.Types.ObjectId,
             ref:"Product",
             required:true
@@ -22,20 +23,18 @@ const cartSchema = new Schema({
         },
         price:{
             type:Number,
-            rquired:true
+            
+        },
+        size:{
+            type:String
         },
         totalPrice:{
             type:Number,
-            required:true
-        },
-        status:{
-            type:String,
-            default:'placed'
-        },
-        cancellationReason:{
-            type:String,
-            default:"none"
-        }
+  
+        },   
+         productImage:{
+          type:[String],
+    },
     }]
 })
 

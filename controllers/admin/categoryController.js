@@ -6,20 +6,33 @@ const Product = require('../../models/productSchema')
 
 const categoryInfo = async (req,res) => {
     try {
-        const page = parseInt(req.query.page)||1
-        const limit = 4
-        const skip = (page-1)*limit
 
-        const categoryData = await Category.find({})
-        .sort({cretedAt:-1})
-        .skip(skip)
+        let search = ""
+        if(req.query.search){
+            search = req.query.search || ""
+        }
+
+
+         
+        let page = 1 
+        if(req.query.page){
+            page = parseInt(req.query.page,10)||1
+        }
+
+        const limit = 4 
+
+        const categoryData = await Category.find( {name:{$regex:".*"+search+".*",$options:"i"}})
+         
+        .skip((page-1)*limit)
         .limit(limit)
+        .exec()
 
 
-        const totalCategories = await Category.countDocuments
+        const totalCategories = await Category.countDocuments()
         const totaPages = Math.ceil(totalCategories/limit)
         res.render('admin-categories',
             {cat:categoryData,
+                search,
                 currentPage:page,
                 totalPages:totaPages,
                 totalCategories:totalCategories,
@@ -124,6 +137,7 @@ const removeCategoryOffer = async (req,res) => {
 }
 
 
+
 const getListCategory  = async (req,res) => {
     try {
         let id = req.query.id
@@ -164,11 +178,15 @@ const getEditCategory = async (req,res) => {
 }
 
 
+
+
 const editCategory = async (req,res) => {
 
     try {
 
         const id = req.params.id
+        console.log(req.body)
+
         
         const {categoryName,description} = req.body
         const existingCategory = await Category.findOne({name:categoryName})
@@ -185,17 +203,44 @@ const editCategory = async (req,res) => {
 
 
         if(updateCategory){
-            res.redirect('/admin/category')
+            return res.json({ message: "Category updated successfully", redirect: "/admin/category" });
+        
         }else{
-            res.status(404).json({error:"Category not found"})
+           return res.status(404).json({error:"Category not found"})
         }
     } catch (error) {
-
-        res.status(500).json({error:"Internal server error"})
+        console.error(error)
+     return res.status(500).json({error:"Internal server error"})
         
     }
    
-}
+}     
+
+
+const deleteCategory = async(req,res)=> {
+    try {
+        const {categoryId} = req.body
+
+        const deletedCategory = await Category.findByIdAndDelete(categoryId);
+
+        if(!deletedCategory){
+            return res.status(404).json({error: 'category not found'})
+        }
+
+      
+
+        res.json({ message: "Category deleted successfully" });
+
+
+    } catch (error) {
+        console.error("Error deleting category:", error);
+        res.status(500).json({ error: "Internal server error" })
+        
+    }
+} 
+
+
+ 
 
 module.exports = {
     categoryInfo,
@@ -206,6 +251,8 @@ module.exports = {
     getListCategory,
     getEditCategory,
     editCategory,
+    deleteCategory,
+
 
 
 

@@ -2,7 +2,7 @@ const env = require('dotenv').config()
 
 const passport = require('passport')
 const GoogleStrategy = require('passport-google-oauth20')
-const User = require('../models/userScheema')
+const User = require('../models/userSchema')
 
 
 

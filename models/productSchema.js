@@ -20,22 +20,23 @@
         ref:"Category",
         required:true
     },
-    salePrice:{
-        type:Number,
-        required:true
-    },
+ 
     productOffer:{
         type:Number,
         default:0,
     },
     quantity:{
         type:Number,
-        default:true
+        default:0
     },
-    // size:{
-    //     type:[String],
-    //     required:true,
-    // },
+    sizes:[{
+
+        size:{type:String,required:true},
+        regularPrice:{type:Number,required:true },
+        salePrice:{type:Number,required:true},
+       
+       }], 
+    
     productImage:{
         type:[String],
         required:true

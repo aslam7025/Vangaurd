@@ -1,4 +1,18 @@
 <%- include("../../views/partials/admin/header") %>
+<style>
+    .table thead {
+   background: #000;
+   color: white;
+}
+.table {
+    background: white;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+    margin: 1rem;
+    width: 100%;
+}
+</style>
 <head>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css">
 </head>
@@ -37,7 +51,7 @@
                 <td><%=data[i].productName%></td>
                 <td><%=data[i].brand%></td>
                 <td><%=data[i].category.name%></td>
-                <td><%=data[i].salePrice%></td>
+                <td><%=data[i].sizes[0].salePrice%></td>
                 <td>
                     <%if(locals.data[i].productOffer){%>
                         <%=data[i].productOffer%>
@@ -49,12 +63,12 @@
                 <td>
                     <%if(locals.data[i].productOffer === 0){%>
                     <button class="btn btn-info" onclick="addOffer('<%=data[i]._id%>')" style="width: 100px;">
-                        <a href="" class="text-white">Add Offer</a>
+                        Add Offer
                     </button>
                     <%}else{%>
         
                     <button class="btn btn-info" onclick="removeOffer('<%=data[i]._id%>')" style="width: 100px;">
-                        <a href="" class="text-white">Remove</a>
+                        Remove
                     </button>
                     <%}%>
                 
@@ -76,7 +90,7 @@
                 </td>
                 <td>
                     <button class="btn btn-info" style="width: 80px;">
-                        <a href="/admin/editProduct/<%= data[i]._id%>" class="text-white" style="text-decoration: none;">Edit</a>
+                        <a href="/admin/editProduct?id=<%=data[i]._id%>" class="text-white" style="text-decoration: none;">Edit</a>
                     </button>
                 </td>
             </tr>
@@ -113,71 +127,72 @@
 
 <script>
     async function addOffer(productId) {
-        const {value:amount} = await Swal.fire({
+    const { value: amount } = await Swal.fire({
+        title: 'Offer in percentage',
+        input: 'number',
+        inputLabel: 'Percentage',
+        inputPlaceholder: '%',
+        inputAttributes: { min: 1, max: 100 }
+    });
 
-            title:'Offer in percentage',
-            input:'number',
-            inputLabel:'precentage',
-            inputPlaceholder:'%'
-        })
-        $.ajax({
-            url:"/admin/addProductOffer",
-            method:'post',
-            data:{
-                percentage:amount,
-                productId:productId,
-            },
-            success:(Response) => {
-                if(Response.status === true){
-                    location.reload()
-                    Swal.fire('Offer added ','The offer has been removed','success')
-                }else{
-                    alert('failed')
-                }
+    if (!amount || amount <= 0 || amount > 100) {
+        return Swal.fire('Invalid Input', 'Please enter a valid percentage (1-100)', 'error');
+    }
+
+    $.ajax({
+        url: "/admin/addProductOffer",
+        method: 'POST',
+        data: { percentage: amount, productId: productId },
+        success: (Response) => {
+            if (Response.status === true) {
+                Swal.fire('Offer Added', 'The discount has been successfully applied', 'success')
+                    .then(() => location.reload());
+            } else {
+                Swal.fire('Failed', Response.message || 'Something went wrong', 'error');
             }
-        })
-    }
-
-
-    function removeOffer(productId){
-        try {
-            Swal.fire({ 
-                title:'Remove offer',
-                text:'Are you sure you want to remove this offer',
-                icon:'Warning',
-                showCancelButton:true,
-                confirmButtonColor:'#',
-                confirmButtonText:'Yes , remove it',
-                timer:5000,
-                timerProgressBar:true
-            })
-            .then(async (result) => {
-                if(result.isConfirm){
-                    $.ajax({
-                        url:'/admin/removeProductOffer',
-                        method:'post',
-                        data:{
-                            productId:productId
-                        },
-                        success:(response) => {
-                            if(response.status===true){
-                                Swal.fire('Removed ', 'The offer has been removed','success')
-                                location.reload()
-                            }else if(response.status === false){
-                                Swal.fire('failed')
-                            }else{
-                                alert('failed')
-                            }
-                        }
-
-                    })
-                }
-            })
-        } catch (error) {
-            console.error(error)
-            
         }
+    });
+}
+
+function removeOffer(productId) {
+    try {
+        Swal.fire({
+            title: 'Remove Offer',
+            text: 'Are you sure you want to remove this offer?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',  
+            cancelButtonColor: '#3085d6', 
+            confirmButtonText: 'Yes, remove it',
+            timer: 5000,
+            timerProgressBar: true
+        }).then((result) => {
+            if (result.isConfirmed) { 
+                $.ajax({
+                    url: '/admin/removeProductOffer',
+                    method: 'POST',
+                    data: { productId: productId },
+                    success: (response) => {
+                        if (response.status === true) {
+                            Swal.fire('Removed', 'The offer has been removed', 'success')
+                                .then(() => location.reload()); 
+                        } else {
+                            Swal.fire('Failed', response.message || 'Something went wrong', 'error');
+                        }
+                    },
+                    error: (xhr, status, error) => {
+                        console.error('AJAX Error:', error);
+                        Swal.fire('Error', 'An unexpected error occurred', 'error');
+                    }
+                });
+            }
+        });
+    } catch (error) {
+        console.error('Error in removeOffer:', error);
+        Swal.fire('Error', 'An unexpected error occurred', 'error');
     }
+}
+
 </script>
 
 

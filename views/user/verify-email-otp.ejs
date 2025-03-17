@@ -1,0 +1,174 @@
+ 
+<style>
+ * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+ }
+
+ body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f5f5f5;
+ }
+
+ .otp-wrapper {
+    width: 100%;
+    padding: 1rem;
+ }
+
+ .otp-container {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 50px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    max-width: 500px;
+    margin: 0 auto;
+ }
+
+ .form-title {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: #333;
+    font-size: 24px;
+ }
+
+ .form-group {
+    margin-bottom: 1rem;
+    width: 100%;
+ }
+
+ label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #555;
+ }
+
+ input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+    background-color: #f1f1edee;
+    color: #555;
+ }
+
+ input:focus {
+    outline: none;
+    border-color: #98780d;
+ }
+
+ button {
+    width: 100%;
+    padding: 1rem;
+    background-color: black;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 1rem;
+ }
+
+ button:hover {
+    background-color: #98780d;
+ }
+
+ .timer {
+    text-align: center;
+    font-size: 0.9rem;
+    color: #2e260d;
+    margin: 1rem 0;
+ }
+
+ .resend-button {
+    background-color: transparent;
+    color: #98780d;
+    text-decoration: underline;
+    border: none;
+    padding: 0;
+    margin-top: 0.5rem;
+ }
+
+ .resend-button:hover {
+    color: #765e08;
+    background-color: transparent;
+ }
+
+ .alert {
+    color: red;
+    font-size: 0.875rem;
+    margin-top: 1rem;
+    text-align: center;
+ }
+
+ .header { display: none; }
+</style>
+
+<div class="otp-wrapper">
+   <div class="otp-container">
+       <h3 class="form-title">Email Verification</h3>
+       <form action="/verify-email-otp" method="post">
+           <div class="form-group">
+               <label for="otp"></label>
+               <input type="text" id="otp" name="otp" class="otp-input" placeholder="Enter OTP" required>
+           </div>
+           <button type="submit" class="button">Verify OTP</button>
+           <div class="timer">
+               <span id="otpTimer">OTP Expires in: 1:00</span>
+           </div>
+           <button type="button" onclick="resendOTP()" class="button">Resend OTP</button>
+           <% if (locals.message && message.length > 0) { %>
+               <div class="alert">
+                   <%= message %>
+               </div>
+           <% } %>
+       </form>
+   </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script>
+ // Keep all existing JavaScript functions unchanged
+ function startOTPTimer(durationInSeconds) {
+   let timer = durationInSeconds;
+   const timerElement = document.getElementById('otpTimer');
+   const countdown = setInterval(function () {
+     const minutes = Math.floor(timer / 60);
+     const seconds = timer % 60;
+
+     timerElement.textContent = `OTP Expires in: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+
+     if (--timer < 0) {
+       clearInterval(countdown);
+       timerElement.textContent = 'OTP Expired';
+     }
+   }, 1000);
+ }
+
+ function resendOTP() {
+   $.ajax({
+     type: 'POST',
+     url: '/resend-otp',
+     success: function (response) {
+       if (response.success) {
+         startOTPTimer(60);
+       } else {
+         alert('Failed to resend OTP. Please try again.');
+       }
+     },
+     error: function () {
+       alert('Error occurred while resending OTP. Please try again.');
+     }
+   });
+ }
+ startOTPTimer(60);
+</script>
+
+ 

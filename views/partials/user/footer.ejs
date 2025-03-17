@@ -1,3 +1,126 @@
+<html>
+            
+<style>
+    .hover-gold {
+        transition: all 0.3s ease;
+    }
+
+    .hover-gold:hover {
+        color: #98780d !important;
+        text-decoration: underline !important;
+    } 
+
+    .footer ul li {
+        margin-bottom: 0.5rem;
+    }
+
+    .footer h5 {
+        letter-spacing: 0.5px;
+        font-size: 1.1rem;
+    }
+
+    .newsletter-form .form-control:focus {
+        border-color: #98780d;
+        box-shadow: none;
+    }
+
+    .btn-dark:hover {
+        background-color: #98780d !important;
+        border-color: #98780d !important;
+    }
+
+    @media (max-width: 768px) {
+        .footer {
+            text-align: center;
+        }
+        
+        .footer__contact {
+            margin-bottom: 2rem;
+        }
+        
+        .social-links {
+            justify-content: center;
+        }
+    }
+</style>
+    <body>
+        
+        <footer class="footer" style="background-color: #ffffff; border-top: 1px solid #f1f1ed; margin-top: 50px;">
+            <div class="container">
+                <div class="row py-2">
+                    <!-- Contact Information -->
+                    <div class="col-lg-3 col-md-6 mb-4">
+                        <h5 class="mb-4" style="color: #98780d; font-weight: 700;">CONTACT US</h5>
+                        <div class="footer__contact">
+                            <p style="color: #333; margin-bottom: 1rem;">
+                                123 Luxury Avenue<br>
+                                New York, NY 10001<br>
+                                United States
+                            </p>
+                            <p style="color: #333; margin-bottom: 1rem;">
+                                <strong>Phone:</strong> +1 234 567 890<br>
+                                <strong>Email:</strong> info@vangaurd.com
+                            </p>
+                        </div>
+                    </div>
+        
+                    <!-- Account Links -->
+                    <div class="col-lg-3 col-md-6 mb-4">
+                        <h5 class="mb-4" style="color: #98780d; font-weight: 700;">ACCOUNT</h5>
+                        <ul class="list-unstyled">
+                            <li><a href="/userProfile" class="text-dark text-decoration-none hover-gold">My Account</a></li>
+                            <li class="my-2"><a href="/cart" class="text-dark text-decoration-none hover-gold">View Cart</a></li>
+                            <li><a href="/wishlist" class="text-dark text-decoration-none hover-gold">Wishlist</a></li>
+                            <li class="my-2"><a href="/orders" class="text-dark text-decoration-none hover-gold">Order Tracking</a></li>
+                        </ul>
+                    </div>
+        
+                    <!-- Quick Links -->
+                    <div class="col-lg-3 col-md-6 mb-4">
+                        <h5 class="mb-4" style="color: #98780d; font-weight: 700;">QUICK LINKS</h5>
+                        <ul class="list-unstyled">
+                            <li><a href="/" class="text-dark text-decoration-none hover-gold">Home</a></li>
+                            <li class="my-2"><a href="/shop" class="text-dark text-decoration-none hover-gold">Shop</a></li>
+                            <li><a href="/about" class="text-dark text-decoration-none hover-gold">About Us</a></li>
+                            <li class="my-2"><a href="/contact" class="text-dark text-decoration-none hover-gold">Contact</a></li>
+                        </ul>
+                    </div>
+        
+                    <!-- Newsletter -->
+                    <div class="col-lg-3 col-md-6 mb-4">
+                        <h5 class="mb-4" style="color: #98780d; font-weight: 700;">NEWSLETTER</h5>
+                        <p style="color: #333;">Subscribe to our newsletter for exclusive updates and offers.</p>
+                        <form class="newsletter-form">
+                            <div class="input-group mb-3">
+                                <input type="email" class="form-control" placeholder="Enter your email" 
+                                       style="border: 1px solid #ddd; border-radius: 8px 0 0 8px; background-color: #f1f1ed;">
+                                <button class="btn btn-dark" type="submit" 
+                                        style="border-radius: 0 8px 8px 0; background-color: black; border-color: black;">
+                                    Subscribe
+                                </button>
+                            </div>
+                        </form>
+                        <div class="social-links mt-4">
+                            <a href="#" class="text-dark me-3 hover-gold"><i class="fa fa-facebook"></i></a>
+                            <a href="#" class="text-dark me-3 hover-gold"><i class="fa fa-twitter"></i></a>
+                            <a href="#" class="text-dark me-3 hover-gold"><i class="fa fa-instagram"></i></a>
+                            <a href="#" class="text-dark hover-gold"><i class="fa fa-pinterest"></i></a>
+                        </div>
+                    </div>
+                </div>
+        
+                <!-- Copyright -->
+                <div class="footer__copyright py-3" style="background-color: #98780d;">
+                    <div class="container text-center">
+                        <p class="mb-0" style="color: white;">
+                            &copy; 2023 Vangaurd. All rights reserved.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+
 <script src="js/jquery-3.3.1.min.js"></script>
 <script src="js/bootstrap.min.js"></script>
 <script src="js/jquery.nice-select.min.js"></script>
@@ -12,7 +135,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 <script src="./user-assets/js/vendor/modernizr-3.6.0.min.js"></script>
 <script src="./user-assets/js/vendor/jquery-3.6.0.min.js"></script>
-<script src="./user-assets/js/vendor/jquery-migrate-3.3.0.min.js"></script>
+<!-- <script src="./user-assets/js/vendor/jquery-migrate-3.3.0.min.js"></script> -->
 <script src="./user-assets/js/vendor/bootstrap.bundle.min.js"></script>
 <script src="./user-assets/js/plugins/slick.js"></script>
 <script src="./user-assets/js/plugins/jquery.syotimer.min.js"></script>

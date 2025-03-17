@@ -1,6 +1,8 @@
 <%- include("../../views/partials/admin/header") %>
 <head>
-   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+
 </head>
 <style>
    .error-message{
@@ -61,23 +63,33 @@
                                    rows="4"></textarea>
                                <div id="description-error" class="error-message"></div>
                            </div>
+
+                           <div id="sizes-container">
+                            <div class="size-entry">
+                                <div class="row">
+                                    <div class="col-lg-4">
+                                        <label class="form-label">Size</label>
+                                        <input name="size[]" type="text" class="form-control border size-input">
+                                        <div class="error-message size-error"></div>
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <label class="form-label">Regular Price for Size</label>
+                                        <input name="regularPrice[]" type="text" class="form-control border price-input">
+                                        <div class="error-message regularPrice-error"></div>
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <label class="form-label">Sale Price for Size</label>
+                                        <input name="salePrice[]" type="text" class="form-control border sale-price-input">
+                                        <div class="error-message salePrice-error"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" id="add-size-btn" class="btn btn-secondary">Add Another Size</button>
+                        
+
+
                            <div class="row">
-                               <div class="col-lg-4">
-                                   <div class="mb-4">
-                                       <label class="form-label">Regular price</label>
-                                       <input placeholder="$" name="regularPrice" type="text"
-                                           class="form-control border">
-                                           <div id="regularPrice-error" class="error-message"></div>
-                                   </div>
-                               </div>
-                               <div class="col-lg-4">
-                                   <div class="mb-4">
-                                       <label class="form-label">Sale price</label>
-                                       <input placeholder="$" name="salePrice" type="text" class="form-control border">
-                                      
-                                   </div>
-                                   <div id="salePrice-error" class="error-message"></div>
-                               </div>
                                <div class="col-lg-4">
                                    <div class="mb-4">
                                        <label class="form-label">Quantity</label>
@@ -86,17 +98,7 @@
                                    </div>
                                </div>
                            </div>
-                           <div class="row">
-                              
-                               <div class="col-lg-4">
-                                   <div class="mb-4">
-                                       <label class="form-label">size</label>
-                                       <input  name="size" type="text" class="form-control border">
-                                   </div>
-                                   <div id="color-error" class="error-message"></div>
-                               </div>
-                            
-                           </div>
+                           
                            <div class="card mb-4">
                                <div class="card-body">
                                    <div class="row gx-2">
@@ -105,19 +107,12 @@
                                            <select class="form-select border" style="width: 150px;" name="category">
                                                <%for(let i = 0; i<cat.length; i++ ){%>
 
-
-                                              
                                                    <option value="<%=cat[i].name%>">
 
                                                     <%=cat[i].name%>
-
-
                                                        
                                                    </option>
                                                    <%}%>
-                                                  
-                                                 
-                                                   
                                            </select>
                                            <div id="category-error" class="error-message"></div>
                                        </div>
@@ -207,26 +202,143 @@
            </div>
        </div>
    </section>
-<script src="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.js"></script>
-     
+
+   
 <script>
-    function validateAndSubmit(){
-        if(validateForm()){
-            document.forms[0].submit()
+
+ 
+document.getElementById('add-size-btn').addEventListener('click', function() {
+    const container = document.getElementById('sizes-container');
+    const newSizeEntry = document.querySelector('.size-entry').cloneNode(true);
+
+    // Clear input values
+    newSizeEntry.querySelectorAll('input').forEach(input => input.value = '');
+    
+    // Clear error messages
+    newSizeEntry.querySelectorAll('.error-message').forEach(error => error.innerText = '');
+
+    container.appendChild(newSizeEntry);
+});
+
+// Validate Form Before Submitting
+function validateAndSubmit(){
+    if(validateForm()){
+        document.forms[0].submit();
+    }
+}
+
+// Form Validation
+function validateForm() {
+    clearErrorMessages(); // Clear errors before validation
+    let isValid = true;
+
+    // Validate Product Fields
+    const name = document.getElementsByName('productName')[0].value.trim();
+    const description = document.getElementById('descriptionid').value.trim();
+    const brand = document.getElementsByName('brand')[0].value.trim();
+    const category = document.getElementsByName('category')[0].value.trim();
+    const images = document.getElementById('input1');
+    let quantity = document.getElementsByName('quantity')[0].value.trim()
+    
+
+    if (name === "" || !/^[a-zA-Z\s]+$/.test(name)) {
+        displayErrorMessage('productName-error', 'Enter a valid product name (only letters and spaces).');
+        isValid = false;
+    }
+
+    if (description === "" || !/^[a-zA-Z\s]+$/.test(description)) {
+        displayErrorMessage('description-error', 'Enter a valid description (only letters and spaces).');
+        isValid = false;
+    }
+
+    if (quantity ==="" || isNaN(quantity) || (quantity) < 0 ) {
+        displayErrorMessage('quantity-error', 'Enter a valid non-negative quantity.');
+        isValid = false;
+    }
+
+    if (images.files.length === 0) {
+        displayErrorMessage("images-error", 'Please select an image.');
+        isValid = false;
+    }
+
+    // Validate Size, Regular Price, and Sale Price
+    const sizeEntries = document.querySelectorAll('.size-entry');
+    
+    sizeEntries.forEach(entry => {
+        const size = entry.querySelector('.size-input').value.trim();
+        const regularPrice = entry.querySelector('.price-input').value.trim();
+        const salePrice = entry.querySelector('.sale-price-input').value.trim();
+
+        if (size === "") {
+            displayErrorMessage(entry.querySelector('.size-error'), 'Please enter a size.');
+            isValid = false;
         }
+
+        if (!/^\d+(\.\d{1,2})?$/.test(regularPrice) || parseFloat(regularPrice) < 0) {
+            displayErrorMessage(entry.querySelector('.regularPrice-error'), 'Enter a valid non-negative price.');
+            isValid = false;
+        }
+
+        if (!/^\d+(\.\d{1,2})?$/.test(salePrice) || parseFloat(salePrice) < 0) {
+            displayErrorMessage(entry.querySelector('.salePrice-error'), 'Enter a valid non-negative sale price.');
+            isValid = false;
+        }
+
+        if (parseFloat(regularPrice) <= parseFloat(salePrice)) {
+            displayErrorMessage(entry.querySelector('.regularPrice-error'), 'Regular price must be greater than sale price.');
+            isValid = false;
+        }
+    });
+
+    return isValid;
+}
+
+
+console.log("Quantity:", quantity);
+console.log("Size:", size);
+console.log("Regular Price:", regularPrice);
+console.log("Sale Price:", salePrice);
+
+
+
+
+
+// Display Error Messages
+function displayErrorMessage(element, message) {
+
+    if(typeof element === "string"){
+        element = document.getElementById(element)
     }
+  
+    element.innerText = message;
+    element.style.display = "block";
+}
 
 
-    function viewImage1(event) {
+
+
+
+// Clear Previous Error Messages
+function clearErrorMessages() {
+    document.querySelectorAll('.error-message').forEach(error => error.innerText = '');
+}
+
+
+
+
+
+
+
+
+
+function viewImage1(event) {
        
-        document.getElementById('imgView1').src = URL.createObjectURL(event.target.files[0])
-        document.getElementById('imgView2').src = URL.createObjectURL(event.target.files[0])
-        document.getElementById('imgView3').src = URL.createObjectURL(event.target.files[0])
-        document.getElementById('imgView4').src = URL.createObjectURL(event.target.files[0])
+       document.getElementById('imgView1').src = URL.createObjectURL(event.target.files[0])
 
-    }
+}
 
-    function viewImage2(event) {
+
+function viewImage2(event) {
        
        document.getElementById('imgView2').src = URL.createObjectURL(event.target.files[0])
 
@@ -246,193 +358,98 @@
 
    }
 
-   function viewImage(event,index){
-    let input = event.target
-    let reader = new FileReader()
 
-    reader.onload = function (){
+// Image Preview & Cropping
+function viewImage(event, index) {
+    let input = event.target;
+    let reader = new FileReader();
 
-        let dataURL = reader.result
-        let image = document.getElementById('imgView' + index)
-        image.src = dataURL
+    reader.onload = function () {
+        let dataURL = reader.result;
+        let image = document.getElementById('imgView' + index);
+        image.src = dataURL;
 
+        let cropper = new Cropper(image, {
+            aspectRatio: 1,
+            viewMode: 1,
+            guides: true,
+            background: false,
+            autoCropArea: 1,
+            zoomable: true,
+        });
 
-        let cropper = new Cropper(image,{
-            aspectRatio:1,
-            viewMode1:1,
-            guides:true,
-            background:false,
-            autoCropArea:1,
-            zoomable:true,
+        let cropperContainer = document.querySelector('#croppedImg' + index).parentNode;
+        cropperContainer.style.display = 'block';
 
-        })
+        let saveButton = document.querySelector('#saveButton' + index);
+        
+        saveButton.addEventListener('click', async function () {
+            let croppedCanvas = cropper.getCroppedCanvas();
+            let croppedImage = document.getElementById('croppedImg' + index);
+            croppedImage.src = croppedCanvas.toDataURL('image/jpeg', 1.0);
 
-        let cropperContainer = document.querySelector('#croppedImg' + index).parentNode
-        cropperContainer.style.display = 'block'
+            let timestamp = new Date().getTime();
+            let fileName = `cropped-img-${timestamp}-${index}.png`;
 
-        let saveButton = document.querySelector('#saveButton' + index)
-        saveButton.addEventListener('click',async function (params) {
+            await croppedCanvas.toBlob((blob) => {
+                let input = document.getElementById('input' + index);
+                let imgFile = new File([blob], fileName, { type: blob.type });
+                const fileList = new DataTransfer();
+                fileList.items.add(imgFile);
+                input.files = fileList.files;
+            });
 
-            let croppedCanvas = cropper.getCroppedCanvas()
-            let croppedImage = document.getElementById('croppedImg' + index)
-            croppedImage.src = croppedCanvas.toDataURL('image/jpeg',1.0)
+            cropperContainer.style.display = 'none';
+            cropper.destroy();
+        });
+    };
+    reader.readAsDataURL(input.files[0]);
+}
 
+// Handle Multiple Image Selection & Thumbnails
+const selectedImages = [];
+document.getElementById('input1').addEventListener('change', handleFileSelect);
 
-            let timestamp = new Date().getTime()
-            let fileName = `cropped-img-${timestamp}-${index}.png`
+function handleFileSelect(event) {
+    const addedImagesContainer = document.getElementById('addedImagesContainer');
+    addedImagesContainer.innerHTML = '';
+    const files = event.target.files;
 
-            await croppedCanvas.toBold(blob => {
-                let input = document.getElementById('input'+index)
-                let imgFile = new File([blob],fileName,blob)
-                const fileList = new DataTransfer()
-                fileList.items.add(imgFile)
-                input.files = fileList.files
-            })
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        selectedImages.push(file);
 
-            cropperContainer.style.display = 'none'
-            cropper.destroy()
-            
-        })
-    }
-    reader.readAsDataURL(input.files[0])
+        const thumbnail = document.createElement('div');
+        thumbnail.classList.add('thumbnail');
 
-   }
+        const img = document.createElement("img");
+        img.src = URL.createObjectURL(file);
+        img.alt = 'thumbnail';
+        img.style.width = "50px";
+        img.style.height = 'auto';
 
-
-   const selectedImages = []
-   document.getElementById('input1').addEventListener('change',handleFileSelect)
-
-
-   function handleFileSelect(event){
-    const addedImagesContainer = document.getElementById('addedImagesContainer')
-    addedImagesContainer.innerHTML = ''
-    const files = event.target.files
-    for(let i = 0 ; i<files.length; i++){
-        const file = files[i]
-        selectedImages.push(file)
-        const thumbnail = document.createElement('div')
-        thumbnail.classList.add('thumbnail')
-
-        const img = document.createElement("img")
-        img.src = URL.createObjectURL(file)
-        img.alt = 'thumbnail'
-        img.style.width = "50px"
-        img.style.height = 'auto'
-        const removeIcon = document.createElement('span')
-        removeIcon.classList.add('remove-icon')
-        removeIcon.innerHTML = "&times"
-        removeIcon.addEventListener('click',()=> {
-            const index = selectedImages.indexOf(file)
-            if(index !== 1){
-                selectedImages.splice(index,1)
+        const removeIcon = document.createElement('span');
+        removeIcon.classList.add('remove-icon');
+        removeIcon.innerHTML = "&times;";
+        removeIcon.addEventListener('click', () => {
+            const index = selectedImages.indexOf(file);
+            if (index !== -1) {
+                selectedImages.splice(index, 1);
             }
-            thumbnail.remove()
+            thumbnail.remove();
+        });
 
-        })
-
-        thumbnail.appendChild(img)
-        thumbnail.appendChild(removeIcon)
-        addedImagesContainer.appendChild(thumbnail)
-
+        thumbnail.appendChild(img);
+        thumbnail.appendChild(removeIcon);
+        addedImagesContainer.appendChild(thumbnail);
     }
-    
-   }
-
-
-
-
-
-    function validateForm() {
-              clearErrorMessages();
-              const name = document.getElementsByName('productName')[0].value;
-              const description = document.getElementById('descriptionid').value;
-              const brand = document.getElementsByName('brand')[0].value;
-              const price = document.getElementsByName('regularPrice')[0].value;
-              const saleprice = document.getElementsByName('salePrice')[0].value;
-              const color = document.getElementsByName('size')[0].value;
-              const category = document.getElementsByName('category')[0].value;
-              const images = document.getElementById('input1')
-              const quantity=document.getElementsByName('quantity')
-              let isValid = true
-              if (name.trim() === "") {
-      displayErrorMessage('productName-error', 'Please enter a product name.');
-      isValid = false;
-   } else if (!/^[a-zA-Z\s]+$/.test(name.trim())) {
-      displayErrorMessage('productName-error', 'Product name should contain only alphabetic characters.');
-      isValid = false;
-   }
-            
-   if (description.trim() === "") {
-      displayErrorMessage('description-error', 'Please enter a product description.');
-      isValid = false;
-   } else if (!/^[a-zA-Z\s]+$/.test(description.trim())) {
-      displayErrorMessage('description-error', 'Product description should contain only alphabetic characters.');
-      isValid = false;
-   }
-  
-  
-           
-  
-  
-              if ( parseInt(quantity) < 0) {
-                  displayErrorMessage('quantity-error', 'Please enter a valid non-negative quantity.');
-                  isValid = false;
-              }
-  
-  
-  
-  
-              if (!/^\d+(\.\d{1,2})?$/.test(price) || parseFloat(price) < 0) {
-                  displayErrorMessage('regularPrice-error', 'Please enter a valid non-negative price.');
-                  isValid = false;
-              }
-  
-  
-  
-  
-              if (!/^\d+(\.\d{1,2})?$/.test(saleprice) || parseFloat(saleprice) < 0) {
-                  displayErrorMessage('salePrice-error', 'Please enter a valid non-negative price.');
-                  isValid = false;
-              }
-              if (parseFloat(price) <= parseFloat(saleprice)) {
-      displayErrorMessage('regularPrice-error', 'Regular price must be greater than sale price.');
-      isValid = false;
-   }
-  
-  
-              if (color.trim() === "") {
-                  displayErrorMessage('color-error', 'Please enter a color.');
-                  isValid = false;
-              }
-  
-  
-              if (images.files.length === 0) {
-                  displayErrorMessage("images-error",'Please select an image.');
-                  isValid = false;
-              }
-              return isValid;
-          }
-
-
-          function displayErrorMessage(elementId, message) {
-              var errorElement = document.getElementById(elementId);
-              errorElement.innerText = message;
-              errorElement.style.display = "block";
-          }
-  
-  
-          function clearErrorMessages() {
-              const errorElements = document.getElementsByClassName('error-message');
-              Array.from(errorElements).forEach(element => {
-                  element.innerText = '';
-              });
-              const errorMessage = document.getElementById('errorMessage');
-  
-  
-          }
+}
 
 
 </script>
+
+
+
 
 
 <%- include("../../views/partials/admin/footer") %>

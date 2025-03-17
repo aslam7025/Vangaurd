@@ -1,0 +1,187 @@
+<%- include("../../views/partials/admin/header") %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Sales Report</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+    <div class="container mt-4">
+        <h2 class="text-center mb-4">📊 Admin Sales Report</h2>
+
+        <!-- 🔹 Filter Section -->
+        <form action="/admin/sales-report" method="GET" class="mb-4">
+            <div class="row">
+                <div class="col-md-3">
+                    <label for="filterType" class="form-label">Filter By</label>
+                    <select id="filterType" name="day" class="form-select" onchange="location.href='/admin/sales-report?day=' + this.value" >
+                        <option value="">All</option>
+                        <option value="salesToday" <%= salesToday ? "selected" : "" %>>Daily</option>
+                        <option value="salesWeekly" <%= salesWeekly ? "selected" : "" %>>Weekly</option>
+                        <option value="salesMonthly" <%= salesMonthly ? "selected" : "" %>>Monthly</option>
+                        <option value="salesYearly" <%= salesYearly ? "selected" : "" %>>Yearly</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="startDate" class="form-label">Date</label>
+                    <input type="date" id="startDate" name="date" value="<%= date || '' %>" class="form-control">
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">Filter</button>
+                </div>
+            </div>
+        </form>
+
+        <!-- 🔹 Sales Summary -->
+        <div class="row text-center mb-4">
+            <div class="col-md-4">
+                <div class="card p-3 shadow">
+                    <h5>📦 Total Orders</h5>
+                    <h3><%= totalOrders %></h3>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card p-3 shadow">
+                    <h5>💰 Total Sales Amount</h5>
+                    <h3>₹<%= totalSales %></h3>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card p-3 shadow">
+                    <h5>🎟️ Total Discount</h5>
+                    <h3>₹<%= totalDiscounts %></h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- 🔹 Sales Table -->
+        <table class="table table-bordered table-hover" id="salesTable">
+            <thead class="table-dark">
+                <tr>
+                    <th>Order ID</th>
+                    <th>Date</th>
+                    <th>Customer</th>
+                    <th>Email</th>
+                    <th>Total Amount</th>
+                    <th>Discount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (data.length > 0) { %>
+                    <% data.forEach(order => { %>
+                        <tr>
+                            <td><%= order._id %></td>
+                            <td><%= new Date(order.createdOn).toLocaleDateString() %></td>
+                            <td><%= order.userId.firstName %></td>
+                            <td><%= order.userId.email %></td>
+                            <td>₹<%= order.totalPrice %></td>
+                            <td>₹<%= order.discount || 0 %></td>
+                        </tr>
+                    <% }) %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">No sales records found.</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+
+        <!-- 🔹 Pagination -->
+        <% if (totalPages > 1) { %>
+            <nav aria-label="Sales Report Pagination">
+                <ul class="pagination justify-content-center">
+                    <% for (let i = 1; i <= totalPages; i++) { %>
+                        <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                            <a class="page-link" href="?page=<%= i %>&day=<%= day %>&date=<%= date %>"><%= i %></a>
+                        </li>
+                    <% } %>
+                </ul>
+            </nav>
+        <% } %>
+
+        <!-- 🔹 Download Buttons -->
+        <div class="text-center mt-4">
+            <a href="/admin/download-excel?day=<%= day %>&date=<%= date %>" class="btn btn-success me-2">Download Excel</a>
+            <a href="/admin/download-pdf?day=<%= day %>&date=<%= date %>" class="btn btn-danger">Download PDF</a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+<script>
+    document.getElementById("createSalesReport").addEventListener("click", function (e) {
+        e.preventDefault();
+        downloadReport("pdf");
+    });
+
+    document.getElementById("downloadExcelReport").addEventListener("click", function (e) {
+        e.preventDefault();
+        downloadReport("excel");
+    });
+
+    function downloadReport(type) {
+        const searchParams = new URLSearchParams(window.location.search);
+        const params = new URLSearchParams();
+
+        // Extract only non-empty parameters
+        ["day", "date", "startDate", "endDate"].forEach((key) => {
+            const value = searchParams.get(key);
+            if (value) params.append(key, value);
+        });
+
+        // Redirect with only valid query params
+        window.location.href = `/admin/download-${type}?${params.toString()}`;
+    }
+
+
+
+
+    function handleFileDownload(blob, filename) {
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+    }
+
+    function showError(title, message) {
+        Swal.fire({
+            icon: 'error',
+            title: title,
+            text: message,
+            footer: 'Please check console for details'
+        });
+        console.error(`${title}: ${message}`);
+    }
+    function dateRangeFilter() {
+        const startDate = document.getElementById("startDate").value;
+        const endDate = document.getElementById("endDate").value;
+        const today = new Date().toISOString().split("T")[0]; // Get today's date in YYYY-MM-DD format
+
+        if (!startDate || !endDate) {
+            alert("Please select both start and end dates.");
+            return;
+        }
+        if (startDate > today) {
+            alert("Start date cannot be in the future.");
+            return;
+        }
+
+        if (endDate < startDate) {
+            alert("End date cannot be earlier than start date.");
+            return;
+        }
+        // Redirect to the correct route
+        window.location.href = `/admin/dateWiseFilter?startDate=${startDate}&endDate=${endDate}`;
+    }
+
+</script>
+<%- include("../../views/partials/admin/footer") %>

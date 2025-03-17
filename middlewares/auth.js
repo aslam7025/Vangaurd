@@ -1,4 +1,4 @@
-const User = require('../models/userScheema')
+const User = require('../models/userSchema')
 
 
 const userAuth = (req,res,next) => {
@@ -36,11 +36,22 @@ const adminAuth = (req,res,next) => {
 })
 
 }
-
+const isSessionAdmin=(req,res,next)=>
+{
+    if(req.session.admin)
+    {
+        next()
+    }
+    else
+    {
+        res.redirect("/admin/login")
+    }
+}
 
 
 
 module.exports = {
     userAuth,
-    adminAuth
+    adminAuth,
+    isSessionAdmin
 }

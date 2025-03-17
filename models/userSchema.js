@@ -79,18 +79,18 @@ const userSchema = new Schema({
         // required:true
 
     }],
-    serachHistory:[{
-        catagory:{
-            type:Schema.Types.ObjectId,
-            ref:"Catagory"
-        },
-        brand:{
-            type:String,
-
-        },
-        searchOn:{
-            type:Date,
-            default:Date.now
+    searchHistory: [{
+        category: [{
+            type: Schema.Types.ObjectId,
+            ref: "Category"
+        }],
+        brand: [{
+            type: Schema.Types.ObjectId,
+            ref: "Brand"
+        }],
+        searchedOn: {
+            type: Date,
+            default: Date.now
         }
     }]
 })

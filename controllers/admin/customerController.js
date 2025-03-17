@@ -1,4 +1,4 @@
-const User = require('../../models/userScheema')
+const User = require('../../models/userSchema')
 
 const customerInfo = async (req,res) => {
     try {
@@ -6,18 +6,13 @@ const customerInfo = async (req,res) => {
         if(req.query.search){
             search = req.query.search || ""
         }
+        
         let page = 1 
         if(req.query.page){
             page = parseInt(req.query.page,10)||1
         }
 
-        const limit = 3
-
-
-        // let search = req.query.search || "";
-        // let page = parseInt(req.query.page, 10) || 1;
-        // const limit = 3;
-
+        const limit = 5
 
 
         const data = await User.find({
@@ -75,26 +70,7 @@ const customerunBlocked = async (req,res) => {
     }
 }
 
-
-// const toggleCustomerBlock = async (req, res) => {
-//     try {
-//         let id = req.params.id;  // Use params instead of query
-//         const user = await User.findById(id);
-
-//         if (!user) {
-//             return res.status(404).send("User not found");
-//         }
-
-//         user.isBlocked = !user.isBlocked;  // Toggle the status
-//         await user.save();
-
-//         res.redirect('/admin/users');
-//     } catch (error) {
-//         console.error("Error toggling customer block status:", error);
-//         res.redirect('/pageerror');
-//     }
-// };
-
+ 
 
 
 
@@ -102,6 +78,6 @@ module.exports = {
     customerInfo,
     customerBlocked,
     customerunBlocked,
-    // toggleCustomerBlock,
+  
 
 }

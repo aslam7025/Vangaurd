@@ -1,23 +1,135 @@
 <%- include("../../views/partials/admin/header") %>
+<head><script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
 <div class="container">
     <div class="row justify-content-center" style="padding-top: 296px;">
         <div class="col-md-6 mt-60">
-            <form method="post" action="/admin/editCategory/<%= category._id %>">
+            <%= console.log("Category:", category) %>
+
+            <form  id="edit-category-form"  onsubmit="return handleFormSubmit(event)" method="post" action="/admin/editCategory"  >
                 <div class="d-grid text-end mt-30 col-md-5">
-                    <button class="btn btn-primary" type="submit">Update category</button>
-                     
+                    <button class="btn btn-primary" type="submit">Update category</button>    
                 </div>
                 <div class="mb-4 mt-30">
                     <label for="product_name" class="form-label">Name</label>
-                    <input type="text" name="categoryName" value="<%=category.name%>" class="form-control border" />
+                    <input type="text" id="category-name" name="categoryName" value="<%=category.name%>" class="form-control border" />
+                    <div id="name-error" class="error-message"></div>
                 </div>
                 
                 <div class="mb-4">
                     <label class="form-label">Description</label>
-                    <textarea name="description" class="form-control border"><%=category.description%></textarea>
+                    <textarea name="description" id="description" class="form-control border"><%=category.description%></textarea>
+                    <div id="description-error" class="error-message"></div>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+<script>function handleFormSubmit(event) {
+    event.preventDefault();
+    if (!validateForm()) {
+        return false;
+    }
+ 
+
+    const categoryName = document.getElementById('category-name').value
+    const categoryDescription = document.getElementById('description').value
+    fetch("/admin/editCategory/<%=category._id%>", {
+        method: "POST",
+        body: JSON.stringify({ categoryName, categoryDescription }),
+        headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json" 
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            throw new Error(data.error);
+        }
+        Swal.fire({
+            icon: "success",
+            title: "Success!",
+            text: "Category updated successfully",
+            timer: 2000
+        }).then(() => {
+            window.location.href = "/admin/category";
+        });
+    })
+    .catch(error => {
+        Swal.fire({
+            icon: "error",
+            title: "Oops!",
+            text: error.message || "An error occurred while updating the category"
+        });
+    });
+}
+
+
+
+function validateForm() {
+    clearErrorMessages();
+    const name = document.getElementById("category-name").value.trim();
+    const description = document.getElementById("description").value.trim();
+    let isValid = true;
+
+    
+    if (name === "") {
+        displayErrorMessage("name-error", "Please enter a category name.");
+        isValid = false;
+    } else if (name.length < 3) {
+        displayErrorMessage("name-error", "Category name must be at least 3 characters long.");
+        isValid = false;
+    } else if (!/^[A-Z][a-zA-Z\s]*$/.test(name)) {
+        displayErrorMessage("name-error", "Category name must start with an uppercase letter and contain only alphabets.");
+        isValid = false;
+    }
+
+   
+    if (description === "") {
+        displayErrorMessage("description-error", "Please enter a description.");
+        isValid = false;
+    } else if (description.length < 5) {
+        displayErrorMessage("description-error", "Description must be at least 5 characters long.");
+        isValid = false;
+    }
+
+    return isValid;
+}
+
+
+function displayErrorMessage(elementId, message) {
+    var errorElement = document.getElementById(elementId);
+    errorElement.innerText = message;
+    errorElement.style.color = "red";
+    errorElement.style.display = "block";
+}
+
+function clearErrorMessages() {
+    const errorElements = document.getElementsByClassName("error-message");
+    Array.from(errorElements).forEach((element) => {
+        element.innerText = "";
+        element.style.display = "none";
+    });
+}
+
+
+document.getElementById("category-name").addEventListener("input", function () {
+    const nameInput = this.value.trim();
+    const nameError = document.getElementById("name-error");
+    const pattern = /^[A-Z][a-zA-Z\s]*$/;
+
+    if (pattern.test(nameInput)) {
+        nameError.textContent = "";
+        this.style.borderColor = "";
+    } else {
+        nameError.textContent = "Name must start with an uppercase letter and contain only alphabets.";
+        this.style.borderColor = "red";
+    }
+});
+
+</script>
+
+     
 <%- include("../../views/partials/admin/footer") %>

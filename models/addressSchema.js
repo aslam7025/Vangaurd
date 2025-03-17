@@ -7,7 +7,7 @@ const addressSchema = new Schema({
         ref:"User",
         required:true
     },
-    address:{
+    address:[{
         addressType:{
             type:String,
             required:true
@@ -38,9 +38,9 @@ const addressSchema = new Schema({
         },
         altPhone:{
             type:Number,
-            required:true
+           
         }
-    }
+    }]
 
 })
 

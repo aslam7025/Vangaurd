@@ -5,6 +5,7 @@
     <%- include("../../views/partials/user/header") %>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        
       .btn {
           display: inline-block;
           padding: 12px 20px;
@@ -103,10 +104,12 @@
       .product-content-wrap a:hover {
           background-color: #ff4c4c;
       }
+     
     </style>
+    
     <section class="hero">
       <div class="hero__slider owl-carousel">
-          <div class="hero__items set-bg" data-setbg="img/hero/hero-1.jpg">
+          <div class="hero__items set-bg" data-setbg="https://images2.alphacoders.com/229/229492.jpg">
               <div class="container">
                   <div class="row">
                       <div class="col-xl-5 col-lg-7 col-md-8">
@@ -114,13 +117,13 @@
                               <h6>Summer Collection</h6>
                               <h2>Fall - Winter Collections 2030</h2>
                               <p>A specialist label creating luxury essentials. Ethically created.</p>
-                              <a href="#" class="primary-btn">Shop now <span class="arrow_right"></span></a>
+                              <a href="/shop" class="primary-btn">Shop now <span class="arrow_right"></span></a>
                           </div>
                       </div>
                   </div>
               </div>
           </div>
-          <div class="hero__items set-bg" data-setbg="img/hero/hero-2.jpg">
+          <!-- <div class="hero__items set-bg" data-setbg=" https://images2.alphacoders.com/229/229492.jpg">
               <div class="container">
                   <div class="row">
                       <div class="col-xl-5 col-lg-7 col-md-8">
@@ -128,12 +131,12 @@
                               <h6>Summer Collection</h6>
                               <h2>Fall - Winter Collections 2030</h2>
                               <p>A specialist label creating luxury essentials.</p>
-                              <a href="#" class="primary-btn">Shop now <span class="arrow_right"></span></a>
+                              <a href="/shop" class="primary-btn">Shop now <span class="arrow_right"></span></a>
                           </div>
                       </div>
                   </div>
               </div>
-          </div>
+          </div> -->
       </div>
     </section>
     <section class="banner spad">
@@ -142,29 +145,29 @@
               <div class="col-lg-7 offset-lg-4">
                   <div class="banner__item">
                       <div class="banner__item__pic">
-                          <img src="img/banner/banner-1.jpg" alt="Clothing Collections 2030">
+                          <img src="https://media.istockphoto.com/id/175448175/photo/womens-shoe.jpg?s=612x612&w=0&k=20&c=YF797Fri7eNFfyNczRJ9oNvYnKEmTZv6xc1QP8kvvHM=" alt="Clothing Collections 2030">
                       </div>
                       <div class="banner__item__text">
-                          <h2>Clothing Collections 2030</h2>
-                          <a href="#">Shop now</a>
+                          <h2> Collections for Men</h2>
+                          <a href="/shop">Shop now</a>
                       </div>
                   </div>
               </div>
               <div class="col-lg-5">
                   <div class="banner__item banner__item--middle">
                       <div class="banner__item__pic">
-                          <img src="img/banner/banner-2.jpg" alt="Accessories">
+                          <img src="https://media.istockphoto.com/id/1284061577/photo/youthful-canvas-sneakers.jpg?s=2048x2048&w=is&k=20&c=a5Y0wv2gn83HmUDT2lFyTnuv6vdalwuPNfYNm6x7YJ8=" alt="Accessories">
                       </div>
                       <div class="banner__item__text">
-                          <h2>Accessories</h2>
-                          <a href="#">Shop now</a>
+                          <h2>Trendy Shoes for Men</h2>
+                          <a href="/shop">Shop now</a>
                       </div>
                   </div>
               </div>
               <div class="col-lg-7">
                   <div class="banner__item banner__item--last">
                       <div class="banner__item__pic">
-                          <img src="img/banner/banner-3.jpg" alt="Shoes Spring 2030">
+                          <img src="https://media.istockphoto.com/id/1659939209/photo/pair-of-stylish-sneakers-isolated-on-white.jpg?s=2048x2048&w=is&k=20&c=E63h8xo5fboxKKZcbUNgsnRbOtZdPUkwfSCN7FafFBQ=">
                       </div>
                       <div class="banner__item__text">
                           <h2>Shoes Spring 2030</h2>
@@ -204,7 +207,7 @@
                           <div class="product-content-wrap">
                               <h6><%=products[i].productName%></h6>
                               <h5><%=products[i].salePrice%></h5>
-                              <a href="/addToCart?id=<%=products[i]._id%>">Add to Cart</a>
+                              <a href="/productDetails?id=<%=products[i]._id%>">Add to Cart</a>
                           </div>
                       </div>
                   </div>
@@ -212,5 +215,6 @@
           </div>
       </div>
     </section>
+
     <%- include("../../views/partials/user/footer") %>
     

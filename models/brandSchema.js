@@ -6,11 +6,13 @@ const {Schema} = mongoose
 const brandSchema = new Schema({
     brandName:{
         type:String,
-        required:true
+        required:true,
+        unique:true
     },
     brandImage:{
         type:[String],
-        required:true
+        required:true,
+        unique:true
 
     },
     isBlocked:{

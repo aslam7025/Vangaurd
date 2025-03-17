@@ -1,5 +1,12 @@
 const Brand = require('../../models/brandSchema')
 const Product = require('../../models/productSchema')
+const {pageerror} = require('../admin/adminController')
+ 
+
+ 
+
+ 
+
 
 
 const getBrandPage = async (req,res)=>{
@@ -20,7 +27,7 @@ const getBrandPage = async (req,res)=>{
         })
     } catch (error) {
         console.error('fetching data error',error)
-        res.redirect('/pageerror')
+       res.redirect('/pageerror')
         
     }
 
@@ -30,11 +37,21 @@ const getBrandPage = async (req,res)=>{
 
 const addBrand = async (req,res)=>{
     try {
-        const brand = req.body.name
-       
-        const findBrand = await Brand.findOne({brand})
+        const brand = req.body.name.trim()
 
-        if(!findBrand){
+        const brandRegex = /^[A-Za-z\s]+$/
+       
+        if (!brandRegex.test(brand)) {
+            return res.redirect('/admin/brands?invalid=true')
+        }
+
+        const findBrand = await Brand.findOne({ brandName: { $regex: new RegExp("^" + brand + "$", "i") } });
+
+
+        if (findBrand) {
+            return res.redirect('/admin/brands?duplicate=true')
+        }
+        
            
             const image = req.file.filename
             const newBrand = new Brand({
@@ -42,10 +59,11 @@ const addBrand = async (req,res)=>{
                 brandImage:image,
             })
             await newBrand.save()
-            res.redirect('/admin/brands')
-        }
+            res.redirect('/admin/brands?success=true')
+        
     } catch (error) {
-        res.redirect('/pageerror')
+        console.error('Brand already added Please try another brand',error)
+        res.redirect("/admin/brands?error=true")
         
     }
 
@@ -100,6 +118,7 @@ module.exports = {
     blockBrand,
     unblockBrand,
     deleteBrand,
+    pageerror
 
 
 }
