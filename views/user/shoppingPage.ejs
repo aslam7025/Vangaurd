@@ -400,6 +400,27 @@
   box-shadow: 0 5px 15px rgba(58, 134, 255, 0.3);
 
 }
+/* Offer Badge */
+.offer-badge {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background-color: var(--primary-color);
+    color: white;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    z-index: 1;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: all var(--transition-speed);
+}
+
+.offer-badge:hover {
+    background-color: #98780d;
+    transform: translateY(-2px);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+}
 
 
 
@@ -499,26 +520,49 @@
     </aside>
     
 
-      <main class="product-grid">
-        <% for(let i = 0; i < products.length; i++) { %>
-          <div class="product-card">
-            <span class="wishlist-btn" onclick="addToWishlist('<%=products[i]._id%>')">❤</span>
-            <a href="/productDetails?id=<%=products[i]._id%>">
-              <img src="/uploads/re-image/<%=products[i].productImage[0]%>" alt="<%=products[i].productName%>" />
-              <h4><%=products[i].productName%></h4>
-              <p><%=products[i].brandName%></p>
-              <div class="price-display">
-                <span class="current-price">₹<%=products[i].sizes[0].salePrice.toLocaleString('en-IN')%></span>
-                <span class="original-price">₹<%=products[i].sizes[0].regularPrice.toLocaleString('en-IN')%></span>
-              </div>
-            </a>
-             
-            <a href="/productDetails?id=<%=products[i]._id%>"><button type="button"  class="add-to-cart-btn">Add to Cart</button></a>
+    <main class="product-grid">
+      <% for(let i = 0; i < products.length; i++) { %>
+        <div class="product-card">
+          <span class="wishlist-btn" onclick="addToWishlist('<%=products[i]._id%>')">❤</span>
+          <a href="/productDetails?id=<%=products[i]._id%>">
+            <img src="/uploads/re-image/<%=products[i].productImage[0]%>" alt="<%=products[i].productName%>" />
+            <h4><%=products[i].productName%></h4>
+            <p><%=products[i].brandName%></p>
+    
+            <div class="price-display">
+              <% 
+              
+                let regularPrice = products[i].sizes && products[i].sizes[0] ? 
+                  products[i].sizes[0].regularPrice : products[i].regularPrice;
+                
+                let salePrice = products[i].sizes && products[i].sizes[0] && products[i].sizes[0].salePrice ? 
+                  products[i].sizes[0].salePrice : products[i].salePrice;
+                
+               
+                regularPrice = regularPrice || 0;
+                salePrice = salePrice || regularPrice;
+                
+                let discount = regularPrice > 0 ? ((regularPrice - salePrice) / regularPrice) * 100 : 0;
+              %>
+              
+              <% if (discount > 0) { %>
+                <span class="offer-badge"><%= Math.round(discount) %>% OFF</span>
+              <% } %>
             
-            
-          </div>
-        <% } %>
-      </main>
+              <span class="current-price">₹<%= salePrice.toLocaleString('en-IN') %></span>
+              <% if (salePrice !== regularPrice) { %>
+                <span class="original-price">₹<%= regularPrice.toLocaleString('en-IN') %></span>
+              <% } %>
+            </div>
+          </a>
+    
+          <a href="/productDetails?id=<%=products[i]._id%>">
+            <button type="button" class="add-to-cart-btn">Add to Cart</button>
+          </a>
+        </div>
+      <% } %>
+    </main>
+    
     </div>
 
     <div class="pagination">

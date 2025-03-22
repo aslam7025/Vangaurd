@@ -249,6 +249,98 @@
   ;
 }
 
+.product-price-cover {
+  display: flex !important;
+  align-items: baseline !important;
+  gap: 15px !important;
+}
+
+.text-brand {
+  font-size: 32px !important;
+  line-height: 1 !important;
+}
+
+.old-price {
+  font-size: 18px !important;
+}
+/* Add to cart button */
+.button-add-to-cart {
+  background-color: black !important;
+  color: white !important;
+  padding: 15px 30px !important;
+  border-radius: 50px !important;
+  transition: all var(--transition-speed) !important;
+}
+
+/* Quantity controls */
+.detail-qty a {
+  background-color: black !important;
+  color: white !important;
+  border-radius: 50px !important;
+}
+
+/* Size selector */
+.size-selector select {
+  border-radius: var(--border-radius) !important;
+  box-shadow: var(--card-shadow) !important;
+}
+/* Size selector hover */
+.size-selector select:hover {
+  border-color: var(--primary-color) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* Image hover effect */
+.main-image img:hover {
+  transform: scale(1.03) !important;
+  box-shadow: var(--hover-shadow) !important;
+}
+
+/* Meta info hover */
+.product-meta li:hover {
+  color: var(--primary-color) !important;
+  transform: translateX(5px) !important;
+}
+.product-detail-page {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+}
+
+.title-detail {
+  font-weight: 600 !important;
+  letter-spacing: -0.5px !important;
+}
+:root {
+  --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+  --hover-shadow: 0 8px 18px rgba(0, 0, 0, 0.15) !important;
+}
+.button-add-to-cart {
+  transition: all 0.3s ease !important;
+}
+
+.detail-qty a {
+  transition: all 0.3s ease !important;
+}
+.offer-badge {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background-color: var(--primary-color);
+    color: white;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    z-index: 1;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: all var(--transition-speed);
+}
+
+.offer-badge:hover {
+    background-color: #98780d;
+    transform: translateY(-2px);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+}
+
 </style>
 
 <!-- Keep all existing HTML structure and EJS variables -->
@@ -265,9 +357,8 @@
  <div class="page-header breadcrumb-wrap">
      <div class="container">
          <div class="breadcrumb">
-             <a href="/" rel="nofollow">Home</a>
-             <span></span> Vangaurd
-             <span></span>product detail page
+             <span></span>
+             <span></span>
          </div>
      </div>
  </div>
@@ -282,6 +373,9 @@
                                  <span class="zoom-icon"><i class="fi-rs-search"></i></span>
                                  <div class="product-image-slider">
                                      <figure class="border-radius-10">
+                                      <% if(totalOffer>0) { %>       
+                                        <span class="offer-badge"><%= Math.round(totalOffer) %>% OFF</span>
+                                   <% } %>
                                          <img src="/uploads/re-image/<%=product.productImage[0]%>" 
                                               alt="<%=product.productName%>" 
                                               id="mainImage" 
@@ -312,11 +406,7 @@
                                          <ins><span class="old-price font-md ml-15" id="dynamic-regPrice">
                                              ₹<%= (sizes && sizes[0].regularPrice) ? sizes[0].regularPrice.toLocaleString('en-IN') : '0' %>
                                          </span></ins>
-                                         <% if(totalOffer) { %>
-                                             <span class="save-price font-md color3 ml-15" style="color: var(--secondary-color);">
-                                                 <%=totalOffer%>% OFF
-                                             </span>
-                                         <% } %>
+                                       
                                      </div>
                                  </div>
                                  <div class="bt-1 border-color-1 mt-15 mb-15"></div>
@@ -343,7 +433,7 @@
                                      </select>
                                  </div>
                                  <div class="detail-extralink">
-                                     <div class="detail-qty border radius">
+                                     <div class="detail-qty">
                                          <a href="#" class="qty-down" data-change="-1"><i class="fi-rs-angle-small-down">-</i></a>
                                          <span class="qty-val" id="quantity">1</span>
                                          <a href="#" class="qty-up" data-change="1"><i class="fi-rs-angle-small-up">+</i></a>

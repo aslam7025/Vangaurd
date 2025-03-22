@@ -151,6 +151,214 @@
         .header__nav__option{
             display: none;
         }
+        .container{
+            height: 5rem;
+        }
+        body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 0;
+}
+
+.checkout-container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 20px;
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    text-align: center;
+    font-size: 26px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.alert {
+    text-align: center;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 5px;
+}
+
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 10px;
+    border-bottom: 2px solid #ddd;
+}
+
+.order-header h3 {
+    font-size: 20px;
+    margin: 0;
+    font-weight: 600;
+}
+
+.order-header p {
+    font-size: 14px;
+    color: #777;
+    margin: 3px 0 0;
+}
+
+.order-status {
+    padding: 8px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    color: white;
+    text-align: center;
+    background-color: #c78f0da8;
+}
+
+/* Status Colors */
+.status-pending {
+    background-color: #ff9800;
+}
+
+.status-shipped {
+    background-color: #17a2b8;
+}
+
+.status-delivered {
+    background-color: #28a745;
+}
+
+.status-cancelled {
+    background-color: #dc3545;
+}
+
+/* Order Items */
+.order-item {
+    display: flex;
+    align-items: center;
+    background: #ffffff;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    transition: 0.3s ease;
+}
+
+.order-item:hover {
+    transform: scale(1.02);
+}
+
+.order-item img {
+    width: 80px;
+    height: 80px;
+    border-radius: 5px;
+    object-fit: cover;
+    margin-right: 15px;
+}
+
+.order-details h4 {
+    font-size: 18px;
+    margin: 0;
+    color: #333;
+    font-weight: 500;
+}
+
+.order-details p {
+    font-size: 14px;
+    color: #555;
+    margin: 3px 0;
+}
+
+/* Price Details */
+.price-details {
+    background: #f1f1f1;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 10px;
+}
+
+.detail-item {
+    /* display: flex; */
+    justify-content: space-between;
+    font-size: 16px;
+    padding: 5px 0;
+}
+
+.total-price {
+    font-weight: bold;
+    color: #28a745;
+}
+
+/* Buttons */
+.cancell-btn,
+.return-btn,
+.btn {
+    padding: 8px 12px;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s ease;
+    border: none;
+    display: inline-block;
+    text-align: center;
+    margin-top: 10px;
+}
+
+.cancell-btn {
+    margin-left: 0px;
+    background: #dc3545;
+    color: white;
+}
+
+.cancell-btn:hover {
+    background: #c82333;
+}
+
+.return-btn {
+    background: #007bff;
+    color: white;
+}
+
+.return-btn:hover {
+    background: #0056b3;
+}
+
+.btn {
+    background: #17a2b8;
+    color: white;
+    text-decoration: none;
+    padding: 8px 15px;
+}
+
+.btn:hover {
+    background: #138496;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .checkout-container {
+        width: 95%;
+        padding: 15px;
+    }
+
+    .order-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .order-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .order-item img {
+        width: 100%;
+        height: auto;
+        margin-bottom: 10px;
+    }
+}
+
     </style>
   
 </head>
@@ -170,27 +378,33 @@
                             <h3>Order #<%= order.orderId %></h3>
                             <p class="text-muted"><%= new Date(order.createdOn).toDateString() %></p>
                         </div>
-                        <div class="order-status 
-                            <% if (order.status === 'Pending') { %>status-pending
-                            <% } else if (order.status === 'Shipped') { %>status-shipped
-                            <% } else if (order.status === 'Delivered') { %>status-delivered
-                            <% } else if (order.status === 'Cancelled') { %>status-cancelled
-                            <% } %>">
-                            <%= order.status %>
-                        </div>
+                        
+                        <div class="order-status">
+                        <%= order.status%>
+                        
+                    </div>
+                    
+                    
                     </div>
 
                     <% order.orderedItems.forEach(item => { %>
                         <div class="order-item">
-                            <img src="/uploads/re-image/<%= item.product.productImage[0] %>" alt="<%= item.product.name %>">
+                            <img src="/uploads/re-image/<%= item.product.productImage[0] %>" alt="<%= item.product.productName %>">
                             <div class="order-details">
                                 <h4><%= item.product.productName %></h4>
                                 <p>Price: ₹<%= item.price %></p>
                                 <p>Quantity: <%= item.quantity %></p>
                                 <% if (item.size) { %><p>Size: <%= item.size %></p><% } %>
                             </div>
+                    
+                            <% if (order.status === 'Pending' || order.status === 'Processing') { %>
+                                <button type="button" class="cancell-btn" onclick="confirmCancel('<%= order.orderId %>', '<%= item._id %>')">
+                                    Cancel Item
+                                </button>
+                            <% } %>
                         </div>
                     <% }); %>
+                    
 
                     <div class="price-details">
                         <div class="detail-item">
@@ -207,11 +421,7 @@
                             <span></span>
                         </div>
                     </div>
-                    <% if (order.status === 'Pending' || order.status === 'Processing') { %>
-                        <button type="button" class="cancell-btn" onclick="confirmCancel('<%= order.orderId %>')">
-                            Cancel Order
-                        </button>
-                    <% } %>
+                    
                     
                          
                     <form id="returnForm-<%= order.orderId %>" action="/return-order/<%= order.orderId %>" method="post">
@@ -236,11 +446,10 @@
 
 
 <script>
-
-function confirmCancel(orderId) {
+function confirmCancel(orderId, itemId) {
     Swal.fire({
         title: "Are you sure?",
-        text: "Do you really want to cancel this order? This action cannot be undone.",
+        text: "Do you really want to cancel this item? This action cannot be undone.",
         icon: "warning",
         showCancelButton: true,
         confirmButtonColor: "#d33",
@@ -248,21 +457,21 @@ function confirmCancel(orderId) {
         confirmButtonText: "Yes, Cancel it!"
     }).then((result) => {
         if (result.isConfirmed) {
-            fetch("/cancel-order", {
-                method: "POST", // Ensure your Express route is a POST request
-                headers: {"Content-Type": "application/json"},
-                body:JSON.stringify({orderId:orderId})
+            fetch("/cancel-order-item", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ orderId: orderId, itemId: itemId })
             })
             .then(response => response.json())
             .then(data => {
-                if (data.message === "Order cancelled successfully") {
+                if (data.message === "Item cancelled successfully") {
                     Swal.fire({
                         title: "Cancelled!",
-                        text: "Your order has been cancelled and refunded.",
+                        text: "Your item has been cancelled and refunded.",
                         icon: "success",
                         confirmButtonColor: "#3085d6"
                     }).then(() => {
-                        location.reload()
+                        location.reload();
                     });
                 } else {
                     Swal.fire({

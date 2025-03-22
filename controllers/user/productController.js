@@ -17,11 +17,16 @@ const productDetails = async (req,res) => {
             return res.redirect('/pageNotFound');
         }
 
+        const sizes = product.sizes && product.sizes.length > 0 ? product.sizes : []
+     //   const regularPrice = product.sizes[0].regularPrice
         const findCategory = product.category
         const categoryOffer = findCategory ?.categoryOffer || 0
         const productOffer = product.productOffer || 0
-        const totalOffer = categoryOffer + productOffer
-        const sizes = product.sizes && product.sizes.length > 0 ? product.sizes : []
+
+        const totalOffer = Math.max(productOffer,categoryOffer)
+        // const discountAmount = (regularPrice * maxOffer)/100
+        // const salePrice = Math.round(regularPrice - discountAmount)
+        
         
         res.render('product-detail',{
             user:userData,

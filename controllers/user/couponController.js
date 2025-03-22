@@ -36,8 +36,9 @@ const applyCoupon = async (req,res) => {
         if (!userCart || userCart.items.length === 0) {
             return res.json({ success: false, message: "Cart is empty." });
         }
-
-        const cartTotal = userCart.items.reduce((sum, item) => sum + item.productId.price * item.quantity, 0);
+        
+        const cartTotal = userCart.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+        
 
         
         if (cartTotal < coupon.minimumPrice) {
@@ -50,12 +51,13 @@ const applyCoupon = async (req,res) => {
         // Apply discount
         const discount = coupon.offerPrice;
         const finalPrice = cartTotal - discount;
+        console.log('final apply:',finalPrice)
 
         return res.json({
             success: true,
             couponName: couponCode,
             discount: discount,
-            finalPrice: finalPrice > 0 ? finalPrice : 0
+            finalPrice: finalPrice 
         });
         
     } catch (error) {

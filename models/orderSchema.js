@@ -8,7 +8,7 @@ const orderSchema = new Schema({
         default: () => uuidv4(),
         unique: true
     },
-    userId: { // Add userId field
+    userId: {  
         type: Schema.Types.ObjectId,
         ref: 'User',
         required: true
@@ -56,7 +56,7 @@ const orderSchema = new Schema({
     paymentMethod: {
         type: String,
         enum: ['COD', 'razorpay','wallet'],
-       // required: true,
+        
         
     },
     status: {

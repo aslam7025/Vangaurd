@@ -14,7 +14,7 @@ const ExcelJS = require("exceljs");
 const getSalesReport = async (req,res)=> {
     try {
 
-        console.log('sales:',req.body)
+        console.log('sales:',req.query)
 
         const { page = 1, day, date } = req.query;
         const limit = 10;

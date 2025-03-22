@@ -54,6 +54,7 @@
     background: white;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     transition: all 0.3s ease-in-out;
+    height: auto;
 }
 
 .header {
@@ -68,6 +69,7 @@
     font-size: 14px;
     color: white;
     font-weight: 500;
+    height: 2rem;
 }
 
 /* =========================
@@ -79,6 +81,7 @@
     align-items: center;
     gap: 2rem;
     padding: 15px 0;
+    
 }
 
 .header__menu ul {
@@ -125,6 +128,7 @@
     transform: translateY(10px);
     transition: all 0.3s ease-in-out;
     padding: 8px 0;
+  
 }
 
 .header__menu li:hover .dropdown {
@@ -154,6 +158,7 @@
 .header__nav__option {
     display: inline-flex;
     align-items: center;
+    
 }
 
 .header__nav__option a {
@@ -238,18 +243,7 @@
     color: #98780d !important;
     padding-left: 25px;
 }
-
-/* =========================
-   Logo Styling
-   ========================= */
-.header__logo img {
-    max-height: 60px;
-    transition: transform 0.3s ease;
-}
-
-/* =========================
-   Responsive Design
-   ========================= */
+ 
 @media (max-width: 991px) {
     .in-head {
         position: relative !important;
@@ -258,6 +252,7 @@
     .header__menu {
         flex-direction: column;
         gap: 1.2rem;
+         
     }
 
     .header__nav__option {
@@ -280,7 +275,33 @@ body {
         padding-top: 90px;
     }
 }
+ /* Adjust logo container */
+.header__logo {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start; /* Align to the left */
+    padding-left: 100px;
+    padding-top: 0%;
+}
+
+/* Style the logo */
+.header__logo img {
+    width: 100px; /* Adjust the size as needed */
+    height: auto;
+    border-radius: 12px; /* Add rounded corners */
+    object-fit: cover;
  
+}
+.col-lg-3 {
+    text-align: left;
+}
+.top-container{
+    height: 100px;
+}
+.col-lg-6 {
+    width: 75%;
+}
+
 
 </style>
 </head>
@@ -306,23 +327,29 @@ body {
     <header class="header">
         <div class="in-head">
         <div class="header__top">
-            <div class="container">
+            <div class="top-container ">
                 <div class="row">
                     <div class="col-lg-6 col-md-7">
                         <div class="header__top__left">
-                            <p>Free shipping, 30-day return or refund guarantee.</p>
+                           
                         </div>
                     </div> 
                 </div>
-            </div>
-        </div>
-        <div class="container">
-            <div class="row">
                 <div class="col-lg-3 col-md-3">
                     <div class="header__logo">
-                        <a href=""><img src=" " alt="logo"></a>
+                        <a href="/">
+                            <img src="/img/Black White Minimalist Initials Monogram Jewelry Logo.jpg" alt="logo">
+                        </a>
                     </div>
                 </div>
+            </div>
+
+        </div>
+        <div class="container">
+           
+            <div class="row">
+                
+                
                 <div class="col-lg-6 col-md-6">
                     <nav class="header__menu mobile-menu">
                         <ul>

@@ -83,7 +83,7 @@ router.get('/deleteAddress',userAuth,profileController.deleteAddress)
 //cart management
 router.get('/cart',userAuth,cartController.getCart)
 router.post('/addTocart',userAuth,cartController.addTocart)
-router.get('/deleteItem',userAuth,cartController.deleteProduct)
+router.post('/deleteItem',userAuth,cartController.deleteProduct)
 router.post('/updateQuantity',userAuth,cartController.updateQuantity)
 
 //checkout
@@ -99,7 +99,7 @@ router.post('/edit-address',userAuth,checkoutController.editAddress)
 router.post('/orderPlaced',userAuth,orderController.orderPlaced)
 router.get('/order-success',userAuth,orderController.loadOrderSuccess)
 router.get('/orders',userAuth,orderController.viewOrders)
-router.post('/cancel-order',userAuth,orderController.cancelOrder)
+router.post('/cancel-order-item',userAuth,orderController.cancelOrder)
 router.post('/return-order/:orderId',userAuth,orderController.returnOreder)
 router.get('/order-details/:orderId',userAuth,orderController.getOrderDetails)
 

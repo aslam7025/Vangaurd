@@ -318,7 +318,28 @@
         <div class="col-lg-4">
             <div class="checkout-section">
                 <h3 class="mb-4">Price Details</h3>
-            
+        
+                <!-- Available Coupons Section -->
+                <div class="available-coupons mb-3">
+                    <h5>Available Coupons</h5>
+                    <ul id="couponList" class="list-group">
+                        <% if (coupons && coupons.length > 0) { %>
+                            <% coupons.forEach(coupon => { %>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span>
+                                        <strong><%= coupon.name %></strong> - ₹<%= coupon.offerPrice %> OFF
+                                    </span>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="applySelectedCoupon('<%= coupon.name %>','<%= coupon.offerPrice %>' )">Apply</button>
+                                </li>
+                            <% }); %>
+                        <% } else { %>
+                            <li class="list-group-item text-muted">No available coupons</li>
+                        <% } %>
+                    </ul>
+                    
+                </div>
+        
+                <!-- Coupon Input Section -->
                 <div class="coupon-section mb-3">
                     <div id="couponInputGroup" class="d-flex gap-2">
                         <input type="text" id="couponCode" class="form-control" placeholder="Enter coupon code">
@@ -328,25 +349,50 @@
                         <span>Applied Coupon: <strong id="appliedCouponCode"></strong></span>
                         <button onclick="removeCoupon()" class="btn btn-link btn-sm text-danger">Remove</button>
                     </div>
-                    <p id="couponMessage" class="mt-2" style="display: none;"></p>
+                    <p id="couponMessage" class="mt-2 text-danger" style="display: none;"></p>
                 </div>
-                
+        
+                <!-- Price Summary -->
                 <div class="summary-item">
                     <span>Price (<%= cart ? cart.items.length : 0 %> items)</span>
-                    <span>₹<%=totalPrice%></span>
+                    <span>₹<%= totalPrice %></span>
                 </div>
+        
                 <div class="summary-item">
                     <span>Discount</span>
-                    <span id="discountAmount" class="text-success">₹0</span>
+                    <span id="discountAmount" class="text-success">
+                        -₹
+                    </span>
                 </div>
+        
+                <!-- Tax Section -->
+                <div class="summary-item">
+                    <span>Tax (10%)</span>
+                    <span id="taxAmount">₹<%= taxAmount.toFixed(2) %></span>
+                </div>
+        
                 <div class="summary-total">
                     <span>Total Amount</span>
-                    <span id="finalPrice">₹<%= (totalPrice ? totalPrice  : 0) %></span>
-                    <input type="hidden" id="totalPriceValue" value="<%= totalPrice ? totalPrice  : 0 %>">
+                    <span id="finalPrice">₹<%= totalPrice + taxAmount%></span>
+                    <input type="hidden" id="totalPriceValue" value="<%= totalPrice ? totalPrice : 0 %>">
+                    <input type="hidden" id="taxAmountValue" value="<%= taxAmount ? taxAmount : 0 %>">
                 </div>
-                <button onclick="placeOrder('<%= user._id %>','<%=totalPrice%>')" class="btn">Place Order</button>
+    
+                <% if (coupons && coupons.length > 0) { %>
+                    <% coupons.forEach(coupon => { %>
+                        <button class="btn" onclick="placeOrder('<%= user._id %>','<%= totalPrice %>','<%= coupon.offerPrice %>','<%= taxAmount %>')">
+                            Place Order
+                        </button>
+                    <% }) %>
+                <% } else { %>
+                    <button class="btn" onclick="placeOrder('<%= user._id %>','<%= totalPrice %>','0','<%= taxAmount %>')">
+                        Place Order
+                    </button>
+                <% } %>
+                
             </div>
         </div>
+        
     </div>
 </div>
 
@@ -359,12 +405,12 @@
 
 document.querySelectorAll('.payment-method').forEach(method => {
     method.addEventListener('click', function() {
-        // Uncheck all payment methods first
+         
         document.querySelectorAll('.payment-method input[type="radio"]').forEach(radio => {
             radio.checked = false;
         });
 
-        // Check the clicked payment method
+       
         this.querySelector('input[type="radio"]').checked = true;
     });
 });
@@ -389,9 +435,25 @@ document.querySelectorAll('.address-card').forEach(card => {
 });
  
 
+ 
 
-async function placeOrder(userId,totalPrice) {
+
+async function placeOrder(userId,totalPrice,discount,taxAmount) {
+
+ 
+
+    const price = parseInt(totalPrice) || 0;
+    const discountValue = appliedCouponCode ? (parseInt(discount) || 0) :0
+    const tax = parseFloat(taxAmount) || 0;
+    const total = parseInt( price + tax)
+
+    console.log("Final Total:", total);
+
+
+ 
+
     const user = userId
+
 
     const selectedAddressRadio = document.querySelector('input[name="selectedAddress"]:checked');
     
@@ -405,7 +467,7 @@ async function placeOrder(userId,totalPrice) {
     }
     
     const selectedAddress = selectedAddressRadio.value;
-    console.log(selectedAddress);
+  
 
 
     const paymentMethodElement = document.querySelector('input[name="paymentMethod"]:checked');
@@ -420,19 +482,32 @@ if (!paymentMethodElement) {
 }
 
 const paymentMethod = paymentMethodElement.value;
-console.log(paymentMethod);
 
-    console.log("working ",paymentMethod)
+if(paymentMethod === 'COD' && price > 1000){
+    Swal.fire({
+        icon: 'warning',
+        title: 'COD Not Available',
+        text: 'Cash on Delivery is not available for orders above ₹1000. Please choose another payment method.',
+        confirmButtonColor: '#3085d6',
+        confirmButtonText: 'OK'
+    })
+    return
+}
+ 
+
+    
     try {
-        if(paymentMethod==='COD'){
+        if(paymentMethod==='COD' ){
             const response = await fetch("/orderPlaced", { 
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     userId: user,
                     addressId: selectedAddress,
-                    totalPrice: totalPrice,
-                    paymentMethod: paymentMethod
+                    totalPrice: total,
+                    paymentMethod: paymentMethod,
+                    discount:discountValue
+
                 })
             });
 
@@ -453,8 +528,8 @@ console.log(paymentMethod);
                 });
             }
        }
-       else if(paymentMethod==='razorpay'){
-            await createRazorpayOrder(totalPrice)
+       else if(paymentMethod ==='razorpay'){
+            await createRazorpayOrder(total,discountValue)
 
        }
 
@@ -466,8 +541,9 @@ console.log(paymentMethod);
                 body: JSON.stringify({
                     userId: user,
                     addressId: selectedAddress,
-                    totalPrice: totalPrice,
+                    totalPrice: total,
                     paymentMethod:paymentMethod,
+                    discount:discountValue
                 })
             });
 
@@ -505,7 +581,7 @@ console.log(paymentMethod);
 
 
 
-async function createRazorpayOrder(amount) {
+async function createRazorpayOrder(amount,discount) {
     console.log(amount)
     try {
         const response = await fetch("/create-razorpay-order", {
@@ -517,7 +593,7 @@ async function createRazorpayOrder(amount) {
         const data = await response.json();
         console.log('create rzp response:',data)
         if (data.success) {
-            openRazorpayCheckout(data.order,amount);
+            openRazorpayCheckout(data.order,amount,discount);
         } else {
             Swal.fire("Error", "Failed to create Razorpay order", "error");
         }
@@ -529,7 +605,7 @@ async function createRazorpayOrder(amount) {
 
 
 
-function openRazorpayCheckout(order,amount) {
+function openRazorpayCheckout(order,amount,discount) {
     
     const userId = "<%=user.id%>"
     const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked').value;
@@ -547,6 +623,7 @@ function openRazorpayCheckout(order,amount) {
             userId: userId,   
             addressId: selectedAddress,
             totalPrice:amount,
+            discount:discount,
             paymentMethod: "razorpay",
             razorpayPaymentId: response.razorpay_payment_id,   
             razorpayOrderId: response.razorpay_order_id,     
@@ -656,7 +733,7 @@ document.getElementById("addAddressForm").addEventListener("submit", async funct
 });
 
  
-//coupon
+//coupon 
 
 let appliedCouponCode = null;
 
@@ -678,10 +755,10 @@ async function applyCoupon() {
         if (result.success) {
             appliedCouponCode = couponCode;
             updatePriceDisplay(result.discount, result.finalPrice);
-            showCouponUI(result.couponName);
+            showCouponUI(couponCode);
             showCouponMessage("Coupon applied successfully!", "green");
         } else {
-            showCouponMessage(result.message, "red");
+            showCouponMessage(result.message, "green");
         }
     } catch (error) {
         showCouponMessage("Failed to apply coupon", "red");
@@ -689,6 +766,8 @@ async function applyCoupon() {
 }
 
 async function removeCoupon() {
+    if (!appliedCouponCode) return;
+
     try {
         const response = await fetch("/remove-coupon", {
             method: "POST",
@@ -698,36 +777,45 @@ async function removeCoupon() {
 
         const result = await response.json();
         if (result.success) {
+            appliedCouponCode = null;
             resetCouponUI();
             showCouponMessage("Coupon removed successfully!", "green");
-            appliedCouponCode = null;
         }
     } catch (error) {
         showCouponMessage("Failed to remove coupon", "red");
     }
 }
 
-
+ 
+function applySelectedCoupon(couponCode) {
+    document.getElementById("couponCode").value = couponCode; 
+}
+ 
 function updatePriceDisplay(discount, finalPrice) {
+    const taxAmount = parseFloat(document.getElementById("taxAmountValue").value);
     document.getElementById("discountAmount").textContent = `₹${discount}`;
-    document.getElementById("finalPrice").textContent = `₹${finalPrice}`;
+    document.getElementById("finalPrice").textContent = `₹${finalPrice + taxAmount}`;
 }
 
-function showCouponUI(couponName) {
+ 
+function showCouponUI(couponCode) {
     document.getElementById("couponInputGroup").style.display = "none";
     document.getElementById("appliedCoupon").style.display = "block";
-    document.getElementById("appliedCouponCode").textContent = couponName;
+    document.getElementById("appliedCouponCode").textContent = couponCode;
 }
 
+ 
 function resetCouponUI() {
-    const totalPrice = document.getElementById("totalPriceValue").value;
+    const totalPrice = parseFloat(document.getElementById("totalPriceValue").value);
+    const taxAmount = parseFloat(document.getElementById("taxAmountValue").value);
+
     document.getElementById("couponInputGroup").style.display = "flex";
     document.getElementById("appliedCoupon").style.display = "none";
     document.getElementById("couponCode").value = "";
     document.getElementById("discountAmount").textContent = "₹0";
-    document.getElementById("finalPrice").textContent = `₹${totalPrice}`;
+    document.getElementById("finalPrice").textContent = `₹${(totalPrice + taxAmount).toFixed(2)}`;
 }
-
+ 
 function showCouponMessage(message, color) {
     const messageElement = document.getElementById("couponMessage");
     messageElement.textContent = message;
@@ -735,6 +823,7 @@ function showCouponMessage(message, color) {
     messageElement.style.display = "block";
     setTimeout(() => messageElement.style.display = "none", 3000);
 }
+
 
 </script>
 

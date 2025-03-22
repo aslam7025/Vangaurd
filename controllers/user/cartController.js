@@ -11,72 +11,7 @@ const { productDetails } = require('./productController')
 
 
 
-
-
-
-// const getCart = async(req,res)=>{
-//     try {
-
-
-//         const id = req.session.user;
-//         if (!id) {
-//             return res.redirect("/login"); // Redirect to login if user is not authenticated
-//         }
  
-//         const user = await User.findOne({ _id: id });
-
-//        // console.log(user)
-//         const productIds = user.cart.map((item) => item.productId);
-//         const products = await Product.find({ _id: { $in: productIds } });
-//         const objectid = await new mongoose.ObjectId(id);
-
-//         console.log(objectid)
-
-//         let data = await User.aggregate([
-//           { $match: { _id: objectid } },
-//           { $unwind: "$cart" },
-//           {
-//             $project: {
-//               proId: { $toObjectId: "$cart.productId" },
-//               quantity: "$cart.quantity",
-//             },
-//           },
-//           {
-//             $lookup: {
-//               from: "products",
-//               localField: "proId",
-//               foreignField: "_id",
-//               as: "productDetails",
-//             },
-//           },
-//         ]);
-//         console.log('data :',data)
-
-//         let quantity = 0;
-//         for (const i of user.cart) {
-//           quantity += i.quantity;
-//         }
-
-//         let grandTotal = 0;
-//         for (let i = 0; i < data.length; i++) {
-//           if (products[i]) {
-//             grandTotal += data[i].productDetails[0].salePrice * data[i].quantity;
-//           }
-//           req.session.grandTotal = grandTotal;
-//         }
-
-//         res.render("cart", {
-//           user,
-//           quantity,
-//           data,
-//           grandTotal,
-//         });
-
-//       } catch (error) {
-//         res.redirect("/pageNotFound");
-//       }
-    
-// }
 
 
 
@@ -122,7 +57,7 @@ const getCart = async(req,res)=>{
 
       // Calculate total quantity and grand total
       const quantity = cart.items.reduce((total, item) => total + item.quantity, 0);
-      const grandTotal = cart.items.reduce((total, item) => total + item.totalPrice, 0);
+      const grandTotal = cart.items.reduce((total, item) => total + item.price, 0);
       
       req.session.grandTotal = grandTotal;
 
@@ -164,7 +99,7 @@ const addTocart = async (req,res)=>{
     }
 
     const salePrice =  selectedSize.salePrice
-    console.log(salePrice)
+    
 
     let cart = await Cart.findOne({userId})
 
@@ -181,7 +116,7 @@ const addTocart = async (req,res)=>{
     if(existingItem){
       existingItem.quantity += quantity
       existingItem.totalPrice = existingItem.quantity * salePrice
-      console.log(existingItem.totalPrice)
+      
     }else{
 
       cart.items.push({
@@ -244,9 +179,16 @@ const deleteProduct = async (req, res) => {
     }
 
     cart.items.splice(itemIndex, 1);
-    await cart.save();
+    if(cart.items.length === 0){
+      
+      await cart.deleteOne({userId})
+    }else{
 
-    res.redirect("/cart");
+      await cart.save();
+
+    }
+  
+    res.status(200).json({success:true})
   } catch (error) {
     res.redirect("/pageNotFound");
   }

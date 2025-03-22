@@ -2,7 +2,9 @@ const User = require('../../models/userSchema')
 const Address = require('../../models/addressSchema')
 const Cart = require('../../models/cartSchema')
 const Product = require('../../models/productSchema')
-//const Order = require('../../models/orderSchema')
+const Wallet = require('../../models/walletSchema')
+const Coupon = require('../../models/couponSchema')
+const Order = require('../../models/orderSchema')
 const mongoose = require('mongoose')
  
 
@@ -33,38 +35,31 @@ const getCheckOut = async (req,res) =>{
     const userAddresses = await Address.findOne({userId})
 
     const currentDate = new Date()
-    // const coupons = await Coupon.find({
-    //     expireOn:{$gt:currentDate},
-    //     isList:true,
-    //     $or:[
+    const coupons = await Coupon.find({
+        expireOn:{$gt:currentDate},
+        isList:true,
+        $or:[
 
-    //        { UsageLimit:{$gt: 0} },
-    //        {UsageLimit:{ $exists:false} },
-    //        { isList:false }
-    //     ]
-    // })
+           { UsageLimit:{$gt: 0} },
+           {UsageLimit:{ $exists:false} },
+           { isList:false }
+        ]
+    })
+    
+
+    
 
 
     const userData = await User.findById(userId)
-
-    //const wallets = await Wallet.find({userId})
-
-    // const sumOfCredit = wallets.reduct((sum, transaction) => 
-    //    transaction.type === "Credit" ? sum + transaction.amount : sum,0
-    // )
-
-
-    // const sumOfDebit = wallets.reduce((sum, transaction) => 
-    //     transaction.type === "Debit" ? sum + transaction.amount : sum, 0
-    // )
-
-
- //   const totalBalanceAmount = sumOfCredit - sumOfDebit;
-
+ 
+ let Tax_Rate = 0.1
 
  let totalPrice = 0
+ let taxAmount = 0
  if(cart && cart.items){
     totalPrice = cart.items.reduce((sum,item) => sum + item.totalPrice,0 )
+    taxAmount = totalPrice * Tax_Rate
+
  }
     
 
@@ -75,9 +70,9 @@ const getCheckOut = async (req,res) =>{
             addresses:userAddresses ? userAddresses.address : [],
             title:'Checkout',
             user:userData,
-          // coupon:coupons,
-          // totalBalanceAmount
-          totalPrice:totalPrice
+            coupons:coupons,
+           taxAmount,
+          totalPrice
         })
         
     } catch (error) {

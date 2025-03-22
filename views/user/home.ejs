@@ -92,7 +92,7 @@
       .product-content-wrap a {
           display: inline-block;
           padding: 8px 12px;
-          background-color: #ff6b6b;
+          background-color: black;
           color: white;
           text-transform: uppercase;
           font-size: 14px;
@@ -102,7 +102,8 @@
     
     
       .product-content-wrap a:hover {
-          background-color: #ff4c4c;
+          background-color:   #98780d;
+          color: white;
       }
      
     </style>
@@ -198,7 +199,7 @@
                                       <img class="default-img" src="/uploads/re-image/<%=products[i].productImage[0]%>" alt="<%=products[i].productName%>">
                                   </a>
                               </div>
-                              <a href="/addToWishlist?=<%=products[i]._id%>" class="wishlist-btn">
+                              <a onclick="addToWishlist('<%=products[i]._id%>')" class="wishlist-btn">
                                   <i class="fas fa-heart"></i>
                               </a>
                           </div>
@@ -215,6 +216,39 @@
           </div>
       </div>
     </section>
+    <script>
+         function addToWishlist(productId) {
+    $.ajax({
+      url: "/add-wishlist",
+      method: "POST",
+      data: { productId: productId },
+      success: (response) => {
+        if (response.status) {
+          Swal.fire({
+            title: "Added to wishlist",
+            text: "The product has been added to your wishlist",
+            icon: "success",
+            timer: 2000,
+          })
+        } else {
+          Swal.fire({
+            title: "Already in wishlist",
+            text: response.message,
+            timer: 2000,
+          })
+        }
+      },
+      error: (error) => {
+        Swal.fire({
+          title: "Error",
+          text: "There was an error adding the product to your wishlist",
+          icon: "error",
+          timer: 2000
+        })
+      }
+    })
+  } 
+    </script>
 
     <%- include("../../views/partials/user/footer") %>
     

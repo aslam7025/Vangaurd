@@ -285,21 +285,44 @@ const loadShoppingPage = async (req,res) => {
 
         const user = req.session.user
         const userData = await User.findOne({_id:user})
+
         const categories = await Category.find({isListed:true})
         const categoryIds = categories.map(category => category._id.toString()) 
+
         const page = parseInt(req.query.page) || 1
         const limit = 9
         const skip = (page-1)*limit
+
         const products = await Product.find({
             isBlocked:false,
             category:{$in:categoryIds},
             quantity:{$gt:0},
-        }).sort({createdOn:-1}).skip(skip).limit(limit)
+        }).populate('category','categoryOffer').sort({createdOn:-1}).skip(skip).limit(limit)
 
         products.forEach(product => {
-            product.salePrice = product.sizes.length > 0 ? product.sizes[0].salePrice : 0;
-            product.regularPrice = product.sizes.length > 0 ? product.sizes[0].regularPrice : 0;
-        });
+            if(product.sizes.length > 0){
+                const regularPrice = product.sizes[0].regularPrice
+                const productOffer = product.productOffer || 0
+                const categoryOffer = product.category ? product.category.categoryOffer || 0:0
+                
+
+                
+                const maxOffer = Math.max(productOffer,categoryOffer)
+              
+
+                const discountAmount = (regularPrice * maxOffer)/100
+                
+                const salePrice = Math.round(regularPrice - discountAmount)
+               
+                product.salePrice = salePrice;
+                product.regularPrice = regularPrice;
+            }else {
+                
+                product.salePrice = 0;
+                product.regularPrice = 0;
+            }
+            
+        })
 
         const totalProducts = await Product.countDocuments({
             isBlocked:false,
@@ -379,7 +402,7 @@ const filterProduct = async (req, res) => {
         .limit(itemsPerPage)
         .lean();
         
-       // console.log('Filtered Products:', findProducts.length);
+     
         const totalProducts = await Product.countDocuments(query);
         const totalPages = Math.ceil(totalProducts / itemsPerPage);
 

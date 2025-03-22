@@ -22,8 +22,8 @@ const orderPlaced = async (req, res) => {
     try {
        
         
-        const discount = 199;
-        const { userId,totalPrice,addressId,paymentMethod,razorpayPaymentId, razorpayOrderId, razorpaySignature, finalAmount} = req.body;
+         
+        const { userId,totalPrice,addressId,paymentMethod,razorpayPaymentId, razorpayOrderId, razorpaySignature, discount} = req.body;
         
 
         
@@ -92,7 +92,7 @@ const orderPlaced = async (req, res) => {
             await findUser.save()
 
         }else if (paymentMethod === 'razorpay'){
-            const paymentverified = await verifyRazorpayPayment(razorpayPaymentId,razorpayOrderId,razorpaySignature,totalAmount)
+            const paymentverified = await verifyRazorpayPayment(razorpayPaymentId,razorpayOrderId,razorpaySignature,totalAmount,discount)
             
             if(!paymentverified){
                 return res.status(400).json({ error: 'Razorpay payment verification failed'})
@@ -106,7 +106,7 @@ const orderPlaced = async (req, res) => {
             await product.save();
         }
 
-        // Create the order with embedded address and mapped items
+        
         const newOrder = new Order({
             userId,
             orderedItems: cart.items.map(item => ({
@@ -116,16 +116,16 @@ const orderPlaced = async (req, res) => {
                 size: item.size 
             })),
             totalPrice,
-            discount,
+            discount:discount?discount:0,
             finalAmount:totalAmount,
-            address: desiredAddress.toObject(), // Embed the address details
+            address: desiredAddress.toObject(), 
             paymentMethod,
             status:'Pending'
         });
 
         await newOrder.save();
 
-        // Clear the user's cart
+      
         await Cart.deleteOne({ userId });
 
         res.status(200).json({ success: true, message: "Order placed successfully!", order: newOrder });
@@ -140,10 +140,11 @@ const orderPlaced = async (req, res) => {
 
 
 const verifyRazorpayPayment = async (req,res) => {
-    console.log("working verify razorpay")
-    const discount = 199
-    const {userId,addressId,totalPrice,paymentMethod,razorpayOrderId,razorpayPaymentId,razorpaySignature} =req.body
+    
+    const {userId,addressId,totalPrice,paymentMethod,razorpayOrderId,razorpayPaymentId,razorpaySignature,discount} =req.body
+ 
     const isSignatureValid = verifySignature(razorpayOrderId, razorpayPaymentId, razorpaySignature)
+     
     if(!isSignatureValid){
         return res.status(400).json({ error : "Invalid Razorpay Signature" });
     }
@@ -151,8 +152,11 @@ const verifyRazorpayPayment = async (req,res) => {
     try {
         
         const payment = await razorpayInstance.payments.fetch(razorpayPaymentId);
+        console.log('checking first :',payment.amount)
 
+        console.log('checking second:',totalPrice*100)
         if (payment.status === "captured" && payment.amount === totalPrice * 100) {
+
 
             const findUser = await User.findById(userId)
             if(!findUser){
@@ -218,7 +222,7 @@ const verifyRazorpayPayment = async (req,res) => {
             size: item.size
         })),
         totalPrice,
-        discount,
+        discount:discount?discount:0,
         finalAmount:totalAmount,
         address:selectedAddress.toObject(),
         paymentMethod,
@@ -272,10 +276,10 @@ const createRazorpayOrder = async (req, res) => {
 const walletPayment = async (req,res)=> {
 
     try {
-        const discount =199
+       
 
         console.log('first',req.body)
-        const { userId ,addressId , totalPrice,paymentMethod} = req.body
+        const { userId ,addressId , totalPrice,paymentMethod,discount} = req.body
 
 
         console.log('body',userId,addressId,totalPrice)
@@ -292,7 +296,7 @@ const walletPayment = async (req,res)=> {
 
         }
 
-        const selectedAddress = await findAddress.address.id(addressId)
+        const selectedAddress =  findAddress.address.id(addressId)
         if(!selectedAddress){
             return res.status(404).json({success:false,error:'Address not found'})
 
@@ -371,7 +375,7 @@ const walletPayment = async (req,res)=> {
             size: item.size
         })),
         totalPrice,
-        discount,
+        discount:discount?discount:0,
         finalAmount:totalAmount,
         address:selectedAddress.toObject(),
         paymentMethod,
@@ -412,7 +416,11 @@ const viewOrders = async (req, res) => {
         console.log(userId)
         const orders=await Order.find({userId:userId})
         .populate('userId')
-        .populate('orderedItems.product').sort({ createdOn: -1 }); 
+        .populate({
+            path: 'orderedItems.product',
+            select: 'productName productImage price',}).sort({ createdOn: -1 }); 
+
+        console.log(orders.orderedItems)
 
       
         res.render("orders",{orders,})
@@ -431,8 +439,10 @@ const cancelOrder = async (req,res) => {
     try {
 
       
-        const {orderId} = req.body
+       console.log('order:',req.body)
+        const {orderId,itemId} = req.body
         const userId = req.session.user
+        
 
          
 
@@ -455,14 +465,20 @@ const cancelOrder = async (req,res) => {
           }
 
 
-          for(const item of findOrder.orderedItems){
-            const product = await Product.findById(item.product)
+          const itemIndex = findOrder.orderedItems.findIndex(item => item._id.toString() === itemId);
+        if (itemIndex === -1) {
+            return res.status(404).json({ message: "Item not found in the order" });
+        } 
 
-            if(product){
-              product.quantity += item.quantity
-              await product.save()
-            }
-          }
+
+        const cancelledItem = findOrder.orderedItems[itemIndex]
+
+
+        const product = await Product.findById(cancelledItem.product);
+        if (product) {
+            product.quantity += cancelledItem.quantity;
+            await product.save();
+        }
 
 
 
@@ -474,11 +490,11 @@ const cancelOrder = async (req,res) => {
                 wallet = new Wallet({userId , balance:0, transactions:[]})
             }
 
-            wallet.balance += findOrder.finalAmount;
+            wallet.balance += cancelledItem.price * cancelledItem.quantity;
             wallet.transactions.push({
                 type: "credit",
-                amount: findOrder.finalAmount,
-                description: `Refund for cancelled order #${orderId}`,
+                amount: cancelledItem.price * cancelledItem.quantity,
+                description: `Refund for cancelled item #${cancelledItem._id} in order #${orderId}`,
                 orderId: findOrder._id,
             });
 
@@ -486,10 +502,15 @@ const cancelOrder = async (req,res) => {
 
         }
 
-        
-          await Order.updateOne({ orderId: orderId }, { status: "Cancelled" });
-          
-          res.status(200).json({ message: "Order cancelled successfully" });
+        findOrder.orderedItems.splice(itemIndex, 1);
+
+        if (findOrder.orderedItems.length === 0) {
+            findOrder.status = "Cancelled";
+        }
+
+        await findOrder.save();
+
+         res.status(200).json({ message: "Item cancelled successfully" });
           
     
         

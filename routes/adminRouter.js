@@ -8,6 +8,7 @@ const productController = require('../controllers/admin/productController')
 const orderController  = require('../controllers/admin/orderController')
 const couponController = require('../controllers/admin/couponController')
 const salesController = require('../controllers/admin/salesController')
+const walletController = require('../controllers/admin/walletController')
 const {userAuth,adminAuth,isSessionAdmin} = require('../middlewares/auth')
 const {pageerror} = require('../controllers/admin/brandController')
 const multer = require('multer')
@@ -24,7 +25,6 @@ router.get('/pageerror',adminController.pageerror)
 
 router.get('/login',adminController.loadLogin)
 router.post('/login',adminController.login)
-
 router.get('/logout',adminAuth,adminController.logout)
 
 
@@ -91,9 +91,16 @@ router.get('/unblockCustomer',adminAuth,customerController.customerunBlocked)
  
   //sales report
   router.get('/sales-report',isSessionAdmin,adminAuth,salesController.getSalesReport)
-
-
+  //pdf
   router.get("/download-pdf",isSessionAdmin,adminAuth,salesController.downloadPDF);
   router.get("/download-excel",isSessionAdmin,adminAuth,salesController.downloadExcel);
+
+
+   
+  //wallet management
+  router.get('/wallet',adminAuth,walletController.getWallet)
+
+   
+
 
 module.exports = router
