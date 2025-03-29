@@ -1,6 +1,8 @@
  
     <%- include("../../views/partials/user/header") %>
-    <style>
+    <head>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+     <style>
         :root {
             --primary: #2A2F4F;
             --secondary: #917FB3;
@@ -141,16 +143,14 @@
             transition: background-color 0.3s ease;
             font-weight: bold;
             margin-top: 3rem;
-           margin-left: 55rem;
+           margin-left: 0;
 
         }
         .return-btn:hover{
             background-color:whitesmoke;
             color: #98780d ;
         }
-        .header__nav__option{
-            display: none;
-        }
+        
         .container{
             height: 5rem;
         }
@@ -183,6 +183,7 @@ h1 {
     padding: 10px;
     font-size: 16px;
     border-radius: 5px;
+    background-color: black;
 }
 
 .order-header {
@@ -359,19 +360,242 @@ h1 {
     }
 }
 
-    </style>
-  
+    
+ /* changed */
+   
+    :root {
+        --primary: #2A2F4F;
+        --secondary: #917FB3;
+        --accent: #E5BEEC;
+        --light: #FDE2F3;
+        --success: #4CAF50;
+        --warning: #FFC107;
+        --danger: #DC3545;
+        --info: #17A2B8;
+    }
+
+    .checkout-container {
+        max-width: 1200px;
+        margin: 3rem auto;
+        padding: 0 1.5rem;
+    }
+
+    h1 {
+        font-size: 2.5rem;
+        color: var(--primary);
+        margin-bottom: 2.5rem;
+        text-align: center;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+    }
+
+    .checkout-section {
+        background: white;
+        border-radius: 1.5rem;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.05);
+        padding: 2.5rem;
+        margin-bottom: 2.5rem;
+        transition: transform 0.3s ease;
+    }
+
+    .checkout-section:hover {
+        transform: translateY(-3px);
+    }
+
+    .order-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 2px solid rgba(42, 47, 79, 0.1);
+    }
+
+    .order-status {
+        padding: 0.5rem 1.25rem;
+        border-radius: 2rem;
+        font-weight: 600;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .status-pending { background: var(--warning); color: #fff; }
+    .status-delivered { background: var(--success); color: #fff; }
+    .status-shipped { background: var(--info); color: #fff; }
+    .status-cancelled { background: var(--danger); color: #fff; }
+
+    .order-item {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border-radius: 1rem;
+        background: rgba(249, 249, 249, 0.5);
+        position: relative;
+        transition: all 0.3s ease;
+    }
+
+    .order-item:hover {
+        background: rgba(233, 233, 233, 0.4);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    .order-item img {
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
+        border-radius: 0.75rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    .order-details {
+        flex: 1;
+    }
+
+    .order-details h4 {
+        font-size: 1.25rem;
+        color: var(--primary);
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+
+    .order-details p {
+        color: rgba(0,0,0,0.7);
+        font-size: 0.95rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .price-details {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        margin-top: 2rem;
+        padding: 1.5rem;
+        background: rgba(245, 245, 245, 0.5);
+        border-radius: 1rem;
+    }
+
+    .detail-item {
+        
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+    }
+
+    .total-price {
+        font-size: 1.35rem;
+        font-weight: 700;
+        color: var(--primary);
+    }
+
+    .btn-group {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .btn {
+        padding: 0.9rem 1.5rem;
+        border-radius: 0.75rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn {
+        background: black;
+        color: white;
+    }
+
+    .btn:hover {
+        background: #98780d;
+        transform: translateY(-2px);
+
+    }
+
+    .btn-danger {
+        background: var(--danger);
+        color: white;
+    }
+
+    .btn-danger:hover {
+        background: #bb2d3b;
+        transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+        background: black;
+        color: var(--primary);
+    }
+
+    .btn-secondary:hover {
+        background: rgba(42, 47, 79, 0.2);
+    }
+
+    .return-form {
+        margin-top: 1.5rem;
+        border-top: 2px solid rgba(42, 47, 79, 0.1);
+        padding-top: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .checkout-container {
+            padding: 0 1rem;
+        }
+        
+        .checkout-section {
+            padding: 1.5rem;
+        }
+        
+        .order-item {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .order-item img {
+            width: 100%;
+            height: 200px;
+        }
+        
+        .btn-group {
+            flex-direction: column;
+        }
+     }
+     .product-status {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 12px; /* Rounded corners */
+    font-weight: bold;
+    font-size: 14px;
+    text-transform: capitalize;
+    background-color: #dc3545; /* Red */
+    color: white;
+}
+
+
+ 
+</style>
 </head>
 <body>
     <div class="checkout-container">
-        <h1>My Orders</h1>
+        <h1>My Orders</h1>       
+       
 
       
-            <div class="alert alert-danger"></div>
+            <div class="alert "></div>
         <% if (!orders || orders.length === 0) { %>
             <p>No orders found.</p>
         <% } else { %>
             <% orders.forEach(order => { %>
+
+                
                 <div class="checkout-section">
                     <div class="order-header">
                         <div>
@@ -395,9 +619,11 @@ h1 {
                                 <p>Price: ₹<%= item.price %></p>
                                 <p>Quantity: <%= item.quantity %></p>
                                 <% if (item.size) { %><p>Size: <%= item.size %></p><% } %>
+                                <% if (item.productStatus === 'Cancelled') { %><p>Status: <span class="product-status"><%= item.productStatus %></span></p><% } %> 
+
                             </div>
                     
-                            <% if (order.status === 'Pending' || order.status === 'Processing') { %>
+                            <% if ((order.status === 'Pending' || order.status === 'Processing') && (item.productStatus === 'Confirmed' || item.productStatus === 'Processing' ||item.productStatus === 'Pending' )) { %>
                                 <button type="button" class="cancell-btn" onclick="confirmCancel('<%= order.orderId %>', '<%= item._id %>')">
                                     Cancel Item
                                 </button>
@@ -426,15 +652,22 @@ h1 {
                          
                     <form id="returnForm-<%= order.orderId %>" action="/return-order/<%= order.orderId %>" method="post">
                         <input type="hidden" name="returnReason" id="returnReason-<%= order.orderId %>">
-                        <% if (order.status === 'Delivered') { %>
-                            <button type="button" class="return-btn" onclick="askReturnReason('<%= order.orderId %>')">Return Order</button>
-                        <% } %>
+                        <div class="btn-group">
+                            <% if (order.status === 'Delivered') { %>
+                                <button type="button" class="btn btn-danger" onclick="askReturnReason('<%= order.orderId %>')">
+                                    <i class="fas fa-undo-alt"></i> Return Order
+                                </button>
+                            <% } %>
+                            <a class="btn " href="/order-details/<%= order._id %>">
+                                <i class="fas fa-info-circle"></i> View Details
+                            </a>
+                        </div>
                     </form>  
                                   
 
-                    <a class="btn" href="/order-details/<%= order._id %>">
+                    <!-- <a class="btn" href="/order-details/<%= order._id %>">
                         View Details
-                    </a>
+                    </a> -->
                 </div>
             <% }); %>
         <% } %>

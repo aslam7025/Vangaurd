@@ -1,0 +1,16 @@
+<% if (products.length > 0) { %>
+    <div class="product-grid">
+        <% products.forEach(product => { %>
+            <div class="product-card">
+                <img src="<%= product.image %>" alt="<%= product.productName %>">
+                <div class="product-info">
+                    <h3><%= product.productName %></h3>
+                    <p class="price">₹<%= product.sizes[0].salePrice %></p>
+                    <a href="/product/<%= product._id %>" class="view-button">View Details</a>
+                </div>
+            </div>
+        <% }); %>
+    </div>
+<% } else { %>
+    <p class="no-products">No products found matching your criteria.</p>
+<% } %>

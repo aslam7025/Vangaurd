@@ -168,6 +168,11 @@
                       <i class="fi-rs-shopping-bag mr-10"></i>Orders
                   </a>
               </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/failed-orders">
+                    <i class="fi-rs-shopping-bag mr-10"></i>Failed-Orders
+                </a>
+            </li>
           
                  <li class="nav-item">
                    <a class="nav-link" id="track-orders-tab" data-bs-toggle="tab" href="#wallet-history" role="tab" aria-controls="track-orders" aria-selected="false">
@@ -269,7 +274,7 @@
               
                    <div>
                      <a href="/addAddress">
-                       <button class="btn btn-primary w-70">
+                       <button class="btn btn-sm btn-success ml-2 ">
                          Add address
                        </button>
                      </a>
@@ -336,10 +341,14 @@
                <div class="tab-pane fade" id="wallet-history" role="tabpanel" aria-labelledby="orders-tab">
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="mb-0">Wallet Balance: ₹<%= wallet.balance.toFixed(2) %></h5>
+                      
+                      <h5 class="mb-0">Wallet Balance: ₹<%= wallet && wallet.balance ? wallet.balance.toFixed(2) : '0.00' %></h5>
+                        
+                         
+                          
                     </div>
                     <div class="card-body">
-                        <% if (wallet.transactions.length > 0) { %>
+                      <% if (wallet && wallet.transactions && wallet.transactions.length > 0) { %>
                             <div class="table-responsive">
                                 <table class="table">
                                     <thead>
@@ -377,24 +386,42 @@
             
               
 
-
-               <div class="tab-pane fade" id="referal" role="tabpanel" aria-labelledby="track-orders-tab">
-                 <div class="card">
-                   <div class="card-header">
-                     <h5 class="mb-0">Referal</h5>
-                   </div>
-                   <div class="card-body">
-                     <h6 class="mb-3">Refer your friends and earn money!</h6>
-                     <p>Share this link: <strong></strong></p>
-                     <p>Earned: ₹</p>
-                   </div>
-                 </div>
-               </div>
+            <div class="tab-pane fade" id="referal" role="tabpanel" aria-labelledby="track-orders-tab">
+              <div class="card">
+                <div class="card-header">
+                  <h5 class="mb-0">Referral</h5>
+                </div>
+                <div class="card-body">
+                  <h6 class="mb-3">Refer your friends and earn money!</h6>
+            
+                  <% if (user.referralCode) { %>
+                    <p>Share this link: 
+                      <strong>
+                        <span id="referral-link"><%= user.referralCode %></span>
+                      </strong>
+                      <button class="btn btn-sm btn-outline-primary" onclick="copyReferralLink()">Copy</button>
+                    </p>
+                  <% } else { %>
+                    <p class="text-muted">Referral code not available.</p>
+                  <% } %>
+            
+                  <p>Earned: ₹</strong></p>
+                </div>
+              </div>
+            </div>
        </div>
      </div>
    </div>
  </section>
 </main>
+<script>
+   function copyReferralLink() {
+    const referralLink = document.getElementById("referral-link").innerText;
+    navigator.clipboard.writeText(referralLink)
+      .then(() => alert("Referral link copied!"))
+      .catch(err => console.error("Failed to copy: ", err));
+  }
+</script>
 <%- include("../../views/partials/user/footer") %>
 
 

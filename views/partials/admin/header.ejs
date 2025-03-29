@@ -100,6 +100,8 @@
             justify-content: space-between;
             padding: 1rem;
             border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            width: 125px;
+            height: 125px;
         }
 
         .brand-wrap {
@@ -207,23 +209,63 @@
             
             
         }
+
+        .screen-overlay {
+    width: 250px;
+    transition: transform 0.3s ease-in-out;
+}
+
+.hidden {
+    transform: translateX(-100%);
+    position: absolute;
+}
+/* Default Sidebar */
+.navbar-aside {
+    width: 250px;
+    transition: width 0.3s ease;
+}
+
+/* When Sidebar is Collapsed */
+.navbar-aside.collapsed {
+    width: 60px; /* Small width, keeping button visible */
+}
+
+/* Adjust Main Content */
+.main-wrap {
+    margin-left: 250px;
+    transition: margin-left 0.3s ease;
+}
+
+.main-wrap.expanded {
+    margin-left: 60px; /* Adjust content width */
+}
+
+/* Adjust Button Position */
+.btn-aside-minimize {
+    position: absolute;
+    right: -10px;
+    top: 10px;
+    z-index: 50; /* Ensures button remains visible */
+}
+
+
     </style>
 </head>
 
 <body>
-    <div class="screen-overlay"></div>
+    <div id="sidebar" class="screen-overlay"></div>
     <aside class="navbar-aside" id="offcanvas_aside">
         <div class="aside-top">
 
-            <h3>Admin panel</h3>
-            <!-- <a href="#" class="brand-wrap">
-                <h4>Admin panel</h4>
-                <img src="/img/logo.png" class="logo" alt="Men Fashion Dashboard"> 
-            </a> 
+            
+             
+                <!-- <h4>Admin panel</h4> -->
+                <img src="/img/Black White Minimalist Initials Monogram Jewelry Logo.jpg" class="logo" alt="Men Fashion Dashboard"> 
+             
             <div>
-                <button class="btn btn-icon btn-aside-minimize">
-                 <i class="material-icons">menu_open</i> -->
-                <!-- </button> -->
+                <button id="toggleMenu" class="btn btn-icon btn-aside-minimize">
+                 <i class="material-icons">menu_open</i>
+                </button>
             </div>
         </div>
         <nav>
@@ -289,6 +331,12 @@
                         <span class="text">Orders</span>
                     </a>
                 </li>
+                <li class="menu-item">
+                    <a class="menu-link" href="/admin/logout">
+                        <i class="material-icons">logout</i>
+                        <span class="text">LogOut</span>
+                    </a>
+                </li>
             </ul>
         </nav>
     </aside>
@@ -314,3 +362,16 @@
                 </ul>
             </div>
         </header>
+        <script>
+         document.addEventListener("DOMContentLoaded", () => {
+    const toggleButton = document.getElementById("toggleMenu");
+    const sidebar = document.getElementById("offcanvas_aside");
+    const mainWrap = document.querySelector(".main-wrap");
+
+    toggleButton.addEventListener("click", () => {
+        sidebar.classList.toggle("collapsed");
+        mainWrap.classList.toggle("expanded");
+    });
+});
+
+        </script>

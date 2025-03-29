@@ -1,331 +1,182 @@
 <%- include("../../views/partials/user/header") %>
-<style> 
-
-  /* Add shop page variables and base styles */
+<style>
   :root {
-    --primary-color: #3a86ff;
-    --secondary-color: #ff006e;
-    --accent-color: #8338ec;
-    --light-bg: #f8f9fa;
-    --dark-text: #212529;
-    --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    --hover-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
-    --border-radius: 12px;
-    --transition-speed: 0.3s;
+    --primary: #2A2A2A;
+    --accent: #D4A373;
+    --light: #F8F9FA;
+    --dark: #212529;
+    --transition: 0.3s ease;
   }
 
-  /* Main container alignment */
   .product-detail-page {
-    max-width: 1200px;
-    margin: 2rem auto;
+    max-width: 1400px;
+    margin: 3rem auto;
     padding: 2rem;
     background: white;
-    border-radius: var(--border-radius);
-    box-shadow: var(--card-shadow);
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    font-family: 'Inter', system-ui, sans-serif;
   }
 
-  /* Image gallery styling */
-  .detail-gallery {
-    background: var(--light-bg);
-    padding: 1.5rem;
-    border-radius: var(--border-radius);
+  .gallery-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 3rem;
+     
+  }
+
+  .main-image {
+    background: var(--light);
+    border-radius: 16px;
+    padding: 2rem;
+    transition: transform var(--transition);
   }
 
   .main-image img {
     width: 100%;
     height: 500px;
     object-fit: contain;
-    border-radius: var(--border-radius);
-    background: white;
-    padding: 1rem;
-    box-shadow: var(--card-shadow);
+    mix-blend-mode: multiply;
   }
 
-  .slider-nav-thumbnails {
+  .thumbnails-grid {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 1rem;
     margin-top: 1.5rem;
   }
 
-  .slider-nav-thumbnails img {
+  .thumbnail-img {
     border: 2px solid transparent;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all var(--transition-speed);
-    background: white;
+    border-radius: 12px;
     padding: 0.5rem;
-    box-shadow: var(--card-shadow);
+    background: white;
+    cursor: pointer;
+    transition: all var(--transition);
   }
 
-  .slider-nav-thumbnails img:hover {
-    border-color: var(--primary-color);
-    transform: scale(1.05);
+  .thumbnail-img:hover {
+    border-color: var(--accent);
+    transform: translateY(-3px);
   }
 
-  /* Product info styling */
-  .title-detail {
-    font-size: 2rem;
-    color: var(--dark-text);
+  .product-info {
+    padding: 1rem 2rem;
+  }
+
+  .product-title {
+    font-size: 2.4rem;
+    font-weight: 700;
+    color: var(--dark);
     margin-bottom: 1.5rem;
-    font-weight: 600;
+    line-height: 1.2;
   }
 
-  .product-price-cover {
-    margin: 2rem 0;
+  .price-section {
     display: flex;
     align-items: center;
     gap: 1.5rem;
+    margin: 2rem 0;
   }
 
-  .text-brand {
-    font-size: 1.75rem;
-    color: var(--secondary-color);
-    font-weight: 700;
+  .current-price {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--accent);
   }
 
-  .old-price {
-    color: #888;
-    text-decoration: line-through;
+  .original-price {
     font-size: 1.2rem;
+    color: #6C757D;
+    text-decoration: line-through;
   }
 
-  /* Form elements styling */
-  .size-selector select {
-    width: 100%;
-    padding: 0.8rem 1rem;
-    border: 2px solid #e0e0e0;
-    border-radius: var(--border-radius);
+  .size-selector {
+    margin: 2rem 0;
+  }
+
+  .size-dropdown {
+    width: 40%;
+    /* padding: 1rem; */
+    border: 2px solid #E9ECEF;
+    border-radius: 12px;
     font-size: 1rem;
-    transition: all var(--transition-speed);
-    background: white;
-    box-shadow: var(--card-shadow);
+    appearance: none;
+    background: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") no-repeat right 1rem center/16px;
+    transition: all var(--transition);
   }
 
-  .size-selector select:focus {
-   
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(58, 134, 255, 0.1);
+  .size-dropdown:hover {
+    border-color: var(--accent);
   }
 
-  /* Quantity controls */
-  .detail-qty {
+  .quantity-controls {
     display: flex;
     align-items: center;
     gap: 1rem;
-    margin: 2rem 0;
-    
+    margin: 1rem;
+    padding-left: 1rem;
   }
 
-  .detail-qty a {
-    padding: 0.8rem 1.2rem;
-    background: var(--light-bg);
-    border-radius: var(--border-radius);
-    color: var(--dark-text);
-    transition: all var(--transition-speed);
-    box-shadow: var(--card-shadow);
-    height: 30px;
-    width: 30px;
-  }
-
-  .detail-qty a:hover {
-    background: #98780d ;
+  .qty-btn {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: black;
     color: white;
-    transform: translateY(-2px);
-    box-shadow: var(--hover-shadow);
-  }
-
-  /* Add to cart button */
-  .button-add-to-cart {
-    background:black;
-    color: white;
-    padding: 1rem;
-    border-radius: var(--border-radius);
-    font-weight: 600;
-    transition: all var(--transition-speed);
-    width: 100%;
-    border: none;
-    cursor: pointer;
-    box-shadow: var(--card-shadow);
-  }
-
-  .button-add-to-cart:hover {
-    background:  #98780d;
-    transform: translateY(-2px);
-    box-shadow: var(--hover-shadow);
-  }
-
-  /* Product meta info */
-  .product-meta {
-    margin-top: 2rem;
-    padding-top: 2rem;
-    border-top: 2px solid var(--light-bg);
-    font-size: 0.9rem;
-    color: #666;
-  }
-
-  /* Responsive design */
-  @media (max-width: 768px) {
-    .product-detail-page {
-      padding: 1.5rem;
-      margin: 1rem;
-    }
-
-    .main-image img {
-      height: 300px;
-    }
-
-    .slider-nav-thumbnails {
-      grid-template-columns: repeat(3, 1fr);
-    }
-
-    .title-detail {
-      font-size: 1.5rem;
-    }
-
-    .text-brand {
-      font-size: 1.4rem;
-    }
-  }
-  .detail-qty a {
-    padding: 0.8rem 1.2rem;
-    background: #000000;
-    border-radius: 20px;
-    color: white;
-    transition: all var(--transition-speed);
-    box-shadow: var(--card-shadow);
-}
-.qty-val {
-    height: 34px;
-    width: 50px;
-    padding-left: 19px;
-    font-size: 23px;
-}
-.fi-rs-angle-small-down{
-  position: relative;
-    bottom: 11px;
-    right: 5px;
-}
-.fi-rs-angle-small-up{
-  position: relative;
-    bottom: 11px;
-    right: 5px;
-}
-
-
-.image-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    justify-content: center;
-}
-
-.image-box {
-    width: 100px; /* Adjust as needed */
-    height: 100px; /* Adjust as needed */
-    border: 1px solid #ddd;
-    padding: 5px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #fff;
-    border-radius: 8px; /* Optional for rounded corners */
-}
-
-.image-box img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
+    border: none;
     cursor: pointer;
-    transition: transform 0.2s ease-in-out;
-}
+    transition: all var(--transition);
+    
+  }
 
-.image-box img:hover {
-    transform: scale(1.1); /* Adds a slight zoom effect on hover */
-}
-.nice-select{
-  border-color: none
-  ;
-}
+  .qty-btn:hover {
+    background:   #98780d;
+    transform: scale(1.1);
+  }
 
-.product-price-cover {
-  display: flex !important;
-  align-items: baseline !important;
-  gap: 15px !important;
-}
+  #quantity {
+    font-size: 1.4rem;
+    font-weight: 600;
+    min-width: 50px;
+    text-align: center;
+  }
 
-.text-brand {
-  font-size: 32px !important;
-  line-height: 1 !important;
-}
+  .add-to-cart-btn {
+    width: 100%;
+    padding: 1.2rem;
+    background:  black;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all var(--transition);
+  }
 
-.old-price {
-  font-size: 18px !important;
-}
-/* Add to cart button */
-.button-add-to-cart {
-  background-color: black !important;
-  color: white !important;
-  padding: 15px 30px !important;
-  border-radius: 50px !important;
-  transition: all var(--transition-speed) !important;
-}
+  .add-to-cart-btn:hover {
+    background:   #98780d;
+    transform: translateY(-2px);
+  }
 
-/* Quantity controls */
-.detail-qty a {
-  background-color: black !important;
-  color: white !important;
-  border-radius: 50px !important;
-}
+  .product-meta {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid #EEE;
+  }
 
-/* Size selector */
-.size-selector select {
-  border-radius: var(--border-radius) !important;
-  box-shadow: var(--card-shadow) !important;
-}
-/* Size selector hover */
-.size-selector select:hover {
-  border-color: var(--primary-color) !important;
-  transform: translateY(-2px) !important;
-}
-
-/* Image hover effect */
-.main-image img:hover {
-  transform: scale(1.03) !important;
-  box-shadow: var(--hover-shadow) !important;
-}
-
-/* Meta info hover */
-.product-meta li:hover {
-  color: var(--primary-color) !important;
-  transform: translateX(5px) !important;
-}
-.product-detail-page {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
-}
-
-.title-detail {
-  font-weight: 600 !important;
-  letter-spacing: -0.5px !important;
-}
-:root {
-  --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
-  --hover-shadow: 0 8px 18px rgba(0, 0, 0, 0.15) !important;
-}
-.button-add-to-cart {
-  transition: all 0.3s ease !important;
-}
-
-.detail-qty a {
-  transition: all 0.3s ease !important;
-}
-.offer-badge {
-    position: absolute;
+  .offer-badge {
     top: 15px;
     left: 15px;
-    background-color: var(--primary-color);
-    color: white;
+    background-color: rgb(99, 236, 57);
+    color:white;
     padding: 5px 12px;
     border-radius: 20px;
     font-size: 12px;
@@ -336,192 +187,171 @@
 }
 
 .offer-badge:hover {
-    background-color: #98780d;
+   
     transform: translateY(-2px);
     box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
 }
 
-</style>
-
-<!-- Keep all existing HTML structure and EJS variables -->
-<!-- ... rest of the product detail page HTML ... -->
-
-<!-- Keep all existing HTML structure and EJS variables -->
-<!-- ... rest of the product detail page HTML ... -->
-
-
- 
-
-
-<main class="main">
- <div class="page-header breadcrumb-wrap">
-     <div class="container">
-         <div class="breadcrumb">
-             <span></span>
-             <span></span>
-         </div>
-     </div>
- </div>
- <section class="mt-50 mb-50">
-     <div class="container">
-         <div class="row">
-             <div class="col-lg-9">
-                 <div class="product-detail accordion-detail">
-                     <div class="row mb-50">
-                         <div class="col-md-6 col-sm-12 col-xs-12">
-                             <div class="detail-gallery">
-                                 <span class="zoom-icon"><i class="fi-rs-search"></i></span>
-                                 <div class="product-image-slider">
-                                     <figure class="border-radius-10">
-                                      <% if(totalOffer>0) { %>       
-                                        <span class="offer-badge"><%= Math.round(totalOffer) %>% OFF</span>
-                                   <% } %>
-                                         <img src="/uploads/re-image/<%=product.productImage[0]%>" 
-                                              alt="<%=product.productName%>" 
-                                              id="mainImage" 
-                                              data-zoom-image="/uploads/re-image/<%=product.productImage[0]%>">
-                                     </figure>
-                                 </div>
-                                 <div class="image-container d-flex flex-wrap gap-2 pl-15 pr-15">
-                                     <% for(let i = 0; i < product.productImage.length; i++) { %>
-                                         <div class="image-box">
-                                             <img  
-                                                  src="/uploads/re-image/<%=product.productImage[i]%>" 
-                                                  alt="Thumbnail <%=i+1%>" 
-                                                  class="thumbnail" 
-                                                  onclick="document.getElementById('mainImage').src = this.src">
-                                         </div>
-                                     <% } %>
-                                 </div>
-                             </div>
-                         </div>
-                         <div class="col-md-6 col-sm-12 col-xs-12">
-                             <div class="detail-info">
-                                 <h2 class="title-detail"><%=product.productName%></h2>
-                                 <div class="clearfix product-price-cover">
-                                     <div class="product-price primary-color float-left">
-                                         <ins><span class="text-brand" id="dynamic-price">
-                                             ₹<%= (sizes && sizes[0].salePrice) ? sizes[0].salePrice.toLocaleString('en-IN') : '0' %>
-                                         </span></ins>
-                                         <ins><span class="old-price font-md ml-15" id="dynamic-regPrice">
-                                             ₹<%= (sizes && sizes[0].regularPrice) ? sizes[0].regularPrice.toLocaleString('en-IN') : '0' %>
-                                         </span></ins>
-                                       
-                                     </div>
-                                 </div>
-                                 <div class="bt-1 border-color-1 mt-15 mb-15"></div>
-                                 <div class="short-desc mb-30">
-                                     <p><%=product.description%></p>
-                                 </div>
-                                 <div class="product_sort_info font-xs mb-30">
-                                     <ul>
-                                         <li class="mb-10"><i class="fi-rs-crown mr-5"></i> 1 Year Brand Warranty</li>
-                                         <li class="mb-10"><i class="fi-rs-refresh mr-5"></i> 30 Day Return Policy</li>
-                                         <li><i class="fi-rs-credit-card mr-5"></i> Cash on Delivery available</li>
-                                     </ul>
-                                 </div>
-                                 <div class="size-selector mb-30">
-                                     <label><strong>Select Size:</strong></label>
-                                     <select id="size-select" class="size-dropdown" onchange="updatePrice()">
-                                         <% product.sizes.forEach((size, i) => { %>
-                                             <option value="<%=size.salePrice%>"
-                                                 data-saleprice="<%= size.salePrice %>"
-                                                 data-regularprice="<%= size.regularPrice %>">
-                                                 <%=size.size%> - ₹<%=size.salePrice.toLocaleString('en-IN')%>
-                                             </option>
-                                         <% }); %>
-                                     </select>
-                                 </div>
-                                 <div class="detail-extralink">
-                                     <div class="detail-qty">
-                                         <a href="#" class="qty-down" data-change="-1"><i class="fi-rs-angle-small-down">-</i></a>
-                                         <span class="qty-val" id="quantity">1</span>
-                                         <a href="#" class="qty-up" data-change="1"><i class="fi-rs-angle-small-up">+</i></a>
-                                     </div>
-                                     <div class="product-extra-link2">
-                                         <form action="/addTocart" method="post">
-                                             <input type="hidden" name="productId" value="<%=product._id%>">
-                                             <input type="hidden" id="selectedSize" name="size" value="<%= product.sizes[0].size %>">
-                                             <button type="submit" class="button button-add-to-cart">Add to cart</button>
-                                         </form>
-                                         <a aria-label="Add To Wishlist" class="action-btn hover-up" href="#"><i class="fi-rs-heart"></i></a>
-                                     </div>
-                                 </div>
-                                 <ul class="product-meta font-xs color-grey mt-50">
-                                     <li class="mb-5">Brand: <%=product.brand%></li>
-                                     <li class="mb-5">Category: <%=category.name%></li>
-                                     <li>Stock: <span class="in-stock text-success ml-5"><%=quantity%> items available</span></li>
-                                 </ul>
-                             </div>
-                         </div>
-                     </div>
-                 </div>
-             </div>
-         </div>
-     </div>
- </section>
-</main>
-<%- include("../../views/partials/user/footer") %>
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/elevatezoom/3.0.8/jquery.elevatezoom.min.js"></script>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Quantity controls
-    document.querySelectorAll('[data-change]').forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.preventDefault();
-            const quantityElement = document.getElementById('quantity');
-            const change = parseInt(this.dataset.change);
-            let quantity = parseInt(quantityElement.textContent) + change;
-            quantity = Math.max(1, quantity);
-            quantityElement.textContent = quantity;
-        });
-    });
-
-    // Size selector handler
-    const sizeSelect = document.getElementById('size-select');
-    if(sizeSelect) {
-        sizeSelect.addEventListener('change', function() {
-            document.getElementById('selectedSize').value = 
-                this.options[this.selectedIndex].text.split(" - ")[0];
-            updatePrice();
-        });
+  @media (max-width: 992px) {
+    .gallery-section {
+      grid-template-columns: 1fr;
     }
 
-    // Initialize image zoom
-    $('#mainImage').elevateZoom({
-        zoomType: "lens",
-        lensShape: "round",
-        lensSize: 150,
-        scrollZoom: true
-    });
+    .main-image img {
+      height: 400px;
+    }
 
-    // Thumbnail click handler
-    document.querySelectorAll('.thumbnail').forEach(thumb => {
-        thumb.addEventListener('click', function() {
-            const newSrc = this.src;
-            $('#mainImage')
-                .attr('src', newSrc)
-                .data('zoom-image', newSrc)
-                .elevateZoom({ 
-                    zoomType: "lens", 
-                    lensShape: "round", 
-                    lensSize: 150, 
-                    scrollZoom: true 
-                });
-        });
-    });
-});
+    .product-title {
+      font-size: 2rem;
+    }
 
-function updatePrice() {
-    const sizeSelect = document.getElementById('size-select');
+    .current-price {
+      font-size: 1.8rem;
+    }
+  }
+
+  @media (max-width: 576px) {
+    .product-detail-page {
+      padding: 1.5rem;
+      margin: 1rem;
+      border-radius: 16px;
+    }
+
+    .main-image img {
+      height: 300px;
+    }
+
+    .thumbnails-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .qty-btn {
+      width: 40px;
+      height: 40px;
+    }
+  }
+  .current{
+    padding: 0px 0px 0px 50px;
+  }
+  .sample{
+    
+    height: 100px;
+    width: 100px;
+    position: absolute;
+    
+  }
+</style>
+
+<main class="product-detail-page">
+  
+  <div class="gallery-section">
+  
+    <div class="image-column">
+      
+      <div class="main-image">
+        <img src="/uploads/re-image/<%=product.productImage[0]%>" 
+             id="mainImage" 
+             alt="<%=product.productName%>">
+      </div>
+      <div class="thumbnails-grid">
+        <% product.productImage.forEach((img, index) => { %>
+          <img src="/uploads/re-image/<%=img%>" 
+               class="thumbnail-img"
+               id="thumbnail-img"
+               onclick="document.getElementById('mainImage').src = this.src">
+        <% }) %>
+      </div>
+    </div>
+    
+    <div class="product-info">
+      <h1 class="product-title"><%=product.productName%></h1>
+      
+      <div class="price-section">
+        <span class="current-price" id="dynamic-price">
+          ₹<%= (sizes && sizes[0].salePrice).toLocaleString('en-IN') %>
+        </span>
+        <span class="original-price" id="dynamic-regPrice">
+          ₹<%= (sizes && sizes[0].regularPrice).toLocaleString('en-IN') %>
+          
+        </span>
+        <% if(totalOffer > 0) { %>
+          <span class="offer-badge"><%= Math.round(totalOffer) %>% OFF</span>
+        <% } %>
+       
+      </div>
+
+      <p class="product-description"><%=product.description%></p>
+
+      <div class="size-selector">
+        <select class="size-dropdown" id="size-select" onchange="updatePrice()">
+          <% product.sizes.forEach((size) => { %>
+            <option value="<%=size.salePrice%>"
+              data-saleprice="<%= size.salePrice %>"
+              data-regularprice="<%= size.regularPrice %>">
+              <%=size.size%> - ₹<%=size.salePrice.toLocaleString('en-IN')%>
+            </option>
+          <% }) %>
+        </select>
+      </div>
+
+      <div class="quantity-controls">
+        <button class="qty-btn" onclick="adjustQuantity(-1)">−</button>
+        <span id="quantity">1</span>
+        <button class="qty-btn" onclick="adjustQuantity(1)">+</button>
+      </div>
+
+      <form action="/addTocart" method="post">
+        <input type="hidden" name="productId" value="<%=product._id%>">
+        <input type="hidden" id="selectedSize" name="size" value="<%= product.sizes[0].size %>">
+        <button type="submit" class="add-to-cart-btn">
+          🛒 Add to Cart
+        </button>
+      </form>
+
+      <div class="product-meta">
+        <p><strong>Brand:</strong> <%=product.brand%></p>
+        <p><strong>Category:</strong> <%=category.name%></p>
+        <p><strong>Stock:</strong> <span class="stock-status"><%=quantity%> available</span></p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<%- include("../../views/partials/user/footer") %>
+
+<script>
+  // Preserve existing functionality with minor optimizations
+  function adjustQuantity(change) {
+    const quantityElement = document.getElementById('quantity');
+    let quantity = parseInt(quantityElement.textContent) + change;
+    quantity = Math.max(1, quantity);
+    quantityElement.textContent = quantity;
+  }
+
+  function updatePrice() {
+    const sizeSelect = document.querySelector('#size-select');
     const selectedOption = sizeSelect.options[sizeSelect.selectedIndex];
     
-    document.getElementById("dynamic-price").textContent = 
-        `₹${parseInt(selectedOption.dataset.saleprice).toLocaleString('en-IN')}`;
-    document.getElementById("dynamic-regprice").textContent = 
-        `₹${parseInt(selectedOption.dataset.regularprice).toLocaleString('en-IN')}`;
-}
+    document.getElementById('dynamic-price').textContent = 
+      `₹${parseInt(selectedOption.dataset.saleprice).toLocaleString('en-IN')}`;
+    
+    document.getElementById('dynamic-regPrice').textContent = 
+      `₹${parseInt(selectedOption.dataset.regularprice).toLocaleString('en-IN')}`;
+    
+    document.getElementById('selectedSize').value = 
+      selectedOption.text.split(' - ')[0];
+  }
+
+  // Initialize image zoom
+  document.addEventListener('DOMContentLoaded', () => {
+    $('#mainImage').elevateZoom({
+      zoomType: "lens", // Corrected from "lense" to "lens"
+      lensShape: "round", // Can be 'round' or 'square'
+      lensSize: 200, // Adjust the size of the lens
+      cursor: "crosshair",
+      responsive: true
+    });
+ 
+});
+ 
 </script>

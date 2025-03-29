@@ -2,6 +2,8 @@ const User = require('../../models/userSchema')
 const Category = require('../../models/categorySchema')
 const Product = require('../../models/productSchema')
 const Brand = require('../../models/brandSchema')
+const Wallet = require('../../models/walletSchema')
+const mongoose = require('mongoose')
 const nodemailer = require('nodemailer')
 const env = require('dotenv').config()
 const bcrypt = require('bcrypt')
@@ -99,11 +101,16 @@ async function sendverificationEmail(email,otp) {
 
 
 
+
+
+
+
 const signup = async (req,res)=> {
     
     try{
 
-        const {firstName,lastName,email,phone,password,confirmPassword} = req.body
+        const {firstName,lastName,email,phone,password,confirmPassword,referralCode} = req.body
+        console.log()
 
         if(password !== confirmPassword){
             return res.render('signup',{message:'password do not match'})
@@ -115,6 +122,19 @@ const signup = async (req,res)=> {
             return res.render('signup',{message:'user with this email already exists'})
         }
 
+
+        let referrer = null
+
+        if(referralCode ){
+            referrer = await User.findOne({referralCode:referralCode.trim()})
+
+            if(!referrer){
+                return res.render('signup',{message:'Invalid referralCode'})
+            }
+        }
+
+       
+
         const otp = generateOtp()
 
         const emailSend = await sendverificationEmail(email,otp)
@@ -122,8 +142,9 @@ const signup = async (req,res)=> {
             return res.json("email.error")
         }
 
+
         req.session.userOtp = otp
-        req.session.userData = {firstName,lastName,email,phone,password}
+        req.session.userData = {firstName,lastName,email,phone,password,referrerId:referrer?referrer._id:null}
 
         res.render('verify-otp')
         console.log("OTP sent",otp)
@@ -162,16 +183,64 @@ const verifyOtp = async (req,res) => {
         if(otp === req.session.userOtp){
             const user = req.session.userData
             const passwordHash = await securePasswod(user.password)
+            const referralCode = `REF-${Math.floor(100000 + Math.random() * 900000)}`
             const saveUserData = new User({
                 firstName:user.firstName,
                 lastName:user.lastName,
                 email:user.email,
                 phone:user.phone, 
-                password:passwordHash
+                password:passwordHash,
+                referralCode:referralCode
 
             })
 
-            await saveUserData.save()
+            
+
+            const newWallet = new Wallet({
+                userId: saveUserData._id,
+                balance: 0,
+                transactions: []
+            });
+
+            await newWallet.save()
+                .then(() => console.log("Wallet created successfully!"))
+                .catch(err => console.error("Error creating wallet:", err));
+
+           
+            saveUserData.wallet = newWallet._id;
+            await saveUserData.save().catch(err => console.error("Error updating user with wallet:", err));
+
+            if (user.referrerId && mongoose.Types.ObjectId.isValid(user.referrerId)) {
+                const referrer = await User.findById(user.referrerId);
+                if (referrer) {
+                    referrer.redeemedUsers.push(saveUserData._id);
+                    referrer.redeemed = true;
+                    await referrer.save().catch(err => console.error("Error saving referrer:", err));
+
+                    let referrerWallet = await Wallet.findOne({ userId: referrer._id });
+                    if (referrerWallet) {
+                        referrerWallet.balance += 100;
+                        referrerWallet.transactions.push({
+                            type: "credit",
+                            amount: 100,
+                            description: "Referral bonus"
+                        });
+                        await referrerWallet.save().catch(err => console.error("Error updating wallet:", err));
+                    } else {
+                        referrerWallet = new Wallet({
+                            userId: referrer._id,
+                            balance: 100,
+                            transactions: [{
+                                type: "credit",
+                                amount: 100,
+                                description: "Referral bonus"
+                            }]
+                        });
+                        await referrerWallet.save().catch(err => console.error("Error creating wallet:", err));
+                    }
+                }
+            }
+
             req.session.user = saveUserData._id
             res.json({success:true,redirectUrl:"/"})
         }else{
@@ -185,6 +254,9 @@ const verifyOtp = async (req,res) => {
         
     }
 }
+
+
+
 
 const resendOtp = async (req,res) =>{
     try {
@@ -280,6 +352,9 @@ const logout = async (req,res) => {
 }
 
 
+
+
+
 const loadShoppingPage = async (req,res) => {
     try {
 
@@ -332,13 +407,17 @@ const loadShoppingPage = async (req,res) => {
         })
         const totalPages = Math.ceil(totalProducts/limit)
         const brands = await Brand.find({isBlocked:false})
+        const brandsWithIds = brands.map(brand => ({_id:brand._id,brandName:brand.brandName}))
+       
         const categoriesWithIds = categories.map(category => ({_id:category._id,name:category.name}))
+         
+      
 
         res.render('shoppingPage',{
             user:userData,
             products:products,
             category:categoriesWithIds,
-            brand:brands,
+            brand:brandsWithIds,
             totalProducts:totalProducts,
             currentPage:page,
             totalPages:totalPages,
@@ -346,11 +425,8 @@ const loadShoppingPage = async (req,res) => {
             selectedBrand:"",
              minPrice: "",
              maxPrice: ""
-
-            
-
         })
-        console.log(products)
+        
     } catch (error) {
         res.redirect('/pageNotFound')
     }
@@ -362,6 +438,7 @@ const loadShoppingPage = async (req,res) => {
 
  
 
+ 
 
 const filterProduct = async (req, res) => {
     try {
@@ -373,68 +450,70 @@ const filterProduct = async (req, res) => {
         const currentPage = parseInt(req.query.page) || 1;
         const itemsPerPage = 6;
         const startIndex = (currentPage - 1) * itemsPerPage;
-        
+
         // Find all categories & brands
         const categories = await Category.find({ isListed: true }).lean();
-        const brands = await Brand.find({}).lean();
+        const brands = await Brand.find({isBlocked:false}).lean();
+
+        // Convert brand ObjectIds to brand names
+        const brandNames = await Brand.find({
+            _id: { $in: brand.map(id => new mongoose.Types.ObjectId(id)) }
+        }).lean();
+
+        // Normalize brand names (trim and handle potential case issues)
+        const normalizedBrandNames = brandNames.map(b => b.brandName.trim());
+
+        console.log('Original Brand ObjectIds:', brand);
+        console.log('Normalized Brand Names:', normalizedBrandNames);
 
         // Query for filtering products
         let query = {
             isBlocked: false,
-            quantity: { $gt: 0 }, // Ensure product is in stock
-            "sizes.salePrice": { $gte: minPrice, $lte: maxPrice } // Price filtering
+            quantity: { $gt: 0 }
         };
 
+        // Price filtering
+        query.$or = [
+            { "sizes.salePrice": { $gte: minPrice, $lte: maxPrice } },
+            { "sizes.regularPrice": { $gte: minPrice, $lte: maxPrice } }
+        ];
+
+        // Category filtering
         if (category.length > 0) {
-            // Use the category IDs from the query parameters
-            query.category = { $in: category };
+            query.category = { 
+                $in: category.map(id => new mongoose.Types.ObjectId(id)) 
+            };
         }
 
-        if (brand.length > 0) {
-            // Use the brand IDs from the query parameters
-            query.brand = { $in: brand };
+        // Brand filtering with case-insensitive match
+        if (normalizedBrandNames.length > 0) {
+            query.brand = { 
+                $in: normalizedBrandNames.map(name => new RegExp(`^${name}$`, 'i')) 
+            };
         }
+
+        console.log('Final Query:', JSON.stringify(query, null, 2));
 
         // Find filtered products with pagination
-        let findProducts = await Product.find(query)
-        .sort({ createdAt: -1 }) // Sort by newest
-        .skip(startIndex)
-        .limit(itemsPerPage)
-        .lean();
-        
-     
-        const totalProducts = await Product.countDocuments(query);
+        const [findProducts, totalProducts] = await Promise.all([
+            Product.find(query)
+                .sort({ createdAt: -1 })
+                .skip(startIndex)
+                .limit(itemsPerPage)
+                .lean(),
+            Product.countDocuments(query)
+        ]);
+
+        console.log('Total Products:', totalProducts);
+        console.log('Filtered Products:', findProducts.length);
+
         const totalPages = Math.ceil(totalProducts / itemsPerPage);
 
-        let userData = null;
-        if (user) {
-            userData = await User.findOne({ _id: user });
-            if (userData) {
-                
-                if (!userData.searchHistory) {
-                    userData.searchHistory = [];
-                }
-                
-                const searchEntry = {
-                    category: category.length > 0 ? category : null,
-                    brand: brand.length > 0 ? brand : null,
-                    searchedOn: new Date()
-                };
-                userData.searchHistory.push(searchEntry);
-                await userData.save();
-            }
-        }
-
-
-       
-        req.session.filteredProducts = findProducts;
-
-        
         res.render('shoppingPage', {
-            user: userData,
-            products: findProducts, 
+            user: user,
+            products: findProducts,
             category: categories,
-            brand: brands, 
+            brand: brands,
             totalPages,
             currentPage,
             selectedCategory: category || [],
@@ -442,14 +521,13 @@ const filterProduct = async (req, res) => {
             minPrice: req.query.minPrice || "",
             maxPrice: req.query.maxPrice || ""
         });
-        
     } catch (error) {
         console.error('Error in filterProduct:', error);
         res.redirect('/pageNotFound');
     }
 };
 
- 
+
 
 
 
@@ -503,6 +581,9 @@ const searchProducts = async (req,res)=>{
 }
 
 
+
+
+
 module.exports ={
     loadHomepage,
     pageNotFound,
@@ -516,5 +597,6 @@ module.exports ={
     loadShoppingPage,
     filterProduct,
     searchProducts,
+   
 
 }

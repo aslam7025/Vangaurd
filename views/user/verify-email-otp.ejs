@@ -123,7 +123,7 @@
            <div class="timer">
                <span id="otpTimer">OTP Expires in: 1:00</span>
            </div>
-           <button type="button" onclick="resendOTP()" class="button">Resend OTP</button>
+           <button type="button" onclick="resendOtp()" class="button">Resend OTP</button>
            <% if (locals.message && message.length > 0) { %>
                <div class="alert">
                    <%= message %>
@@ -132,43 +132,70 @@
        </form>
    </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script>
  // Keep all existing JavaScript functions unchanged
- function startOTPTimer(durationInSeconds) {
-   let timer = durationInSeconds;
-   const timerElement = document.getElementById('otpTimer');
-   const countdown = setInterval(function () {
-     const minutes = Math.floor(timer / 60);
-     const seconds = timer % 60;
+ 
 
-     timerElement.textContent = `OTP Expires in: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+ let otpTimerInterval;
+    let timer = 60;
 
-     if (--timer < 0) {
-       clearInterval(countdown);
-       timerElement.textContent = 'OTP Expired';
-     }
-   }, 1000);
- }
+    function startOtpTimer(){
+        const timerElement = document.getElementById('otpTimer');
+        otpTimerInterval = setInterval(function(){
+            const minutes = Math.floor(timer/60);
+            const seconds = timer % 60;
+            timerElement.textContent = `OTP Expires in: ${minutes}:${seconds < 10?'0':''}${seconds}`;
+            if(--timer <0){
+                clearInterval(otpTimerInterval);
+                timerElement.textContent = 'OTP Expired';
+            }
+        },1000);
+    }
 
- function resendOTP() {
-   $.ajax({
-     type: 'POST',
-     url: '/resend-otp',
-     success: function (response) {
-       if (response.success) {
-         startOTPTimer(60);
-       } else {
-         alert('Failed to resend OTP. Please try again.');
-       }
-     },
-     error: function () {
-       alert('Error occurred while resending OTP. Please try again.');
-     }
-   });
- }
- startOTPTimer(60);
+    function initializeOtpTimer(){
+        clearInterval(otpTimerInterval);
+        timer = 60;
+        startOtpTimer();
+    }
+
+    initializeOtpTimer();
+
+
+ 
+ function resendOtp(){
+        clearInterval(otpTimerInterval);
+        timer = 60;
+        startOtpTimer();
+        $.ajax({
+            type:'POST',
+            url:'/resend-Otp',
+            success: function (response){
+                if(response.success){
+                    Swal.fire({
+                        icon:'success',
+                        title:'Resend OTP Successful',
+                        showConfirmButton:false,
+                    })
+                }else {
+                    Swal.fire({
+                        icon:'error',
+                        title:'Error',
+                        text:'Failed to resend OTP. Please try again.'
+                    })
+                }
+            },
+            error: function (){
+                Swal.fire({
+                    icon:'error',
+                    title:'Error',
+                    text:'Erro Occured while resending OTP. Please try again.'
+                })
+            }
+        })
+    }
 </script>
 
  

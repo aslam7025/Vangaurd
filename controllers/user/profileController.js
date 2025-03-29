@@ -93,6 +93,8 @@ const getForgotPasspage = async (req,res) =>  {
 }
 
 
+
+
 const forgotEmailValid = async (req,res)=>{
 
     try {
@@ -121,14 +123,9 @@ const forgotEmailValid = async (req,res)=>{
 
         }
 
-       
-
-       
-
     } catch (error) {
         res.redirect('/pageNotFound')
         
-    
     }
 
 }
@@ -235,11 +232,12 @@ const userProfile = async (req,res) => {
 }
 
 
+
+
+
 const changeEmail = async (req,res) => {
     try {
               res.render("change-email")
-        
-        
     } catch (error) {
 
         res.redirect('/pageNotFound')
@@ -265,7 +263,7 @@ const changeEmailValid = async (req,res) => {
                 req.session.email = email
                 res.render('verify-email-otp')
                 console.log('Email send',email)
-                console.log("OTP" ,otp)
+                console.log("Email changing OTP" ,otp)
             }else{
                 res.json("email-error")
             }
@@ -289,7 +287,6 @@ const verifyOtpEmail = async (req,res) => {
             req.session.userData = req.body.userData
             res.render('new-email',{
                 userData:req.session.userData,
-
             })
         }else{
             res.render('verify-email-otp',{
@@ -319,6 +316,7 @@ const updateEmail = async (req,res) => {
         
     }
 }
+
 
 
 const changePassword = async (req,res) => {
@@ -555,6 +553,9 @@ const deleteAddress = async (req,res) => {
 }
 
 
+
+
+
 module.exports  ={
     getForgotPasspage,
     forgotEmailValid,
@@ -574,11 +575,7 @@ module.exports  ={
     postAddAddress,
     editAddress,
     postEditAddress,
-    deleteAddress
-
+    deleteAddress,
     
-
-
-
 
 }

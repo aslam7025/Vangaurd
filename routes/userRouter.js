@@ -14,7 +14,7 @@ const {userAuth} = require('../middlewares/auth')
 
 
 
-
+//user management
 
 router.get('/pageNotFound',userController.pageNotFound)
 router.get('/',userController.loadHomepage)
@@ -29,10 +29,8 @@ router.get('/signup',userController.loadSignup)
 router.post('/signup',userController.signup)
 router.post('/verify-otp',userController.verifyOtp)
 router.post('/resend-otp',userController.resendOtp)
-
-
-
 router.get('/login',userController.loadLogin)
+
 router.post('/login',userController.login)
 
 router.get('/logout',userAuth,userController.logout)
@@ -49,20 +47,37 @@ router.get('/auth/google/callback',passport.authenticate('google',{failureRedire
 
 // Profile
 
-router.get('/forgot-password',userAuth,profileController.getForgotPasspage)
-router.post('/forgot-email-valid',userAuth,profileController.forgotEmailValid)
-router.post('/verify-passForgot-otp',userAuth,profileController.verifyForgotPassOtp)
-router.get('/reset-password',userAuth,profileController.getResetPassPage)
-router.post('/reset-password',userAuth,profileController.postNewPassword)
-router.get('/resend-forgot-otp',userAuth,profileController.resendOtp)
+router.get('/forgot-password',profileController.getForgotPasspage)
+
+router.post('/forgot-email-valid',profileController.forgotEmailValid)
+
+router.post('/verify-passForgot-otp',profileController.verifyForgotPassOtp)
+
+router.get('/reset-password',profileController.getResetPassPage)
+
+router.post('/reset-password',profileController.postNewPassword)
+
+router.get('/resend-forgot-otp',profileController.resendOtp)
+
+
+
 router.get('/userProfile',userAuth,profileController.userProfile)
+
 router.get('/change-email',userAuth,profileController.changeEmail)
+
 router.post('/change-email',userAuth,profileController.changeEmailValid)
+
 router.post('/verify-email-otp',userAuth,profileController.verifyOtpEmail)
+
 router.post('/update-email',userAuth,profileController.updateEmail)
-router.get('/change-password',userAuth,profileController.changePassword)
-router.post('/change-password',userAuth,profileController.changePasswordValid)
-router.post('/verify-changePassword-otp',userAuth,profileController.verifyChangePassOtp)
+
+router.get('/change-password',profileController.changePassword)
+
+router.post('/change-password',profileController.changePasswordValid)
+
+router.post('/verify-changePassword-otp',profileController.verifyChangePassOtp)
+
+ 
 
 
 
@@ -107,6 +122,12 @@ router.get('/order-details/:orderId',userAuth,orderController.getOrderDetails)
 router.post('/create-razorpay-order',userAuth,orderController.createRazorpayOrder)
 router.post('/verify-razorpay-payment',userAuth,orderController.verifyRazorpayPayment)
 
+//retry payment
+router.get('/order-failed',userAuth,orderController.loadOrderFailed)
+router.post('/create-failed-order',userAuth,orderController.createFailedOrder)
+router.get('/failed-orders',userAuth,orderController.getFailedOrders)
+//router.post('/verify-re-try-payment',userAuth,orderController.verifyRetryPayment)
+
 //wallet
 router.post('/walletPayment',userAuth,orderController.walletPayment)
 
@@ -127,6 +148,7 @@ router.delete('/remove-wishlist',userAuth,wishlistController.removeWishlist)
 
 //wallet mangement
 router.get('/wallet',userAuth,walletController.getWallet)
+
 
 
 module.exports = router

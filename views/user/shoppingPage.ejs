@@ -405,7 +405,7 @@
     position: absolute;
     top: 15px;
     left: 15px;
-    background-color: var(--primary-color);
+    background-color: rgb(99, 236, 57);
     color: white;
     padding: 5px 12px;
     border-radius: 20px;
@@ -417,7 +417,7 @@
 }
 
 .offer-badge:hover {
-    background-color: #98780d;
+    
     transform: translateY(-2px);
     box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
 }
@@ -430,16 +430,16 @@
   <section class="shop-page container">
     <div class="shop-topbar">
       <div class="search-bar">
-        <form action="/search" method="POST" class="search-form">
-          <input type="text" name="query" placeholder="Search items..." class="search-input" />
-          <button type="submit" class="search-button">Search</button>
+        <form id="filterForm" class="search-form">
+            <input type="text" name="query" id="searchInput" placeholder="Search items..." class="search-input" />
+            <button type="submit" class="search-button">Search</button>
         </form>
-      </div>
+    </div>
     </div>
    
     <div class="product-list-container">
       <aside class="sidebar">
-        <form action="/filter" method="GET" class="filter-form">
+        <form action="/filter" method="get" class="filter-form">
             <input type="hidden" name="apply" value="true">
             
             <!-- Categories Filter -->
@@ -516,7 +516,7 @@
             <button type="submit" class="apply-button">Apply Filters</button>
         </form>
         
-        <!-- <button type="button" class="clear-button" onclick="clearAllFilters()">Clear Filters</button> -->
+        <button type="button" class="apply-button" onclick="clearAllFilters()">Clear Filters</button>
     </aside>
     
 
@@ -622,5 +622,19 @@
       }
     })
   } 
+
+
+
+  
+  // function clearAllFilters() {
+  //       document.querySelector('.filter-form').reset();
+  //       document.querySelectorAll('.filter-form input[type="checkbox"]').forEach(input => input.checked = false);
+  //       document.querySelectorAll('.filter-form input[type="number"]').forEach(input => input.value = '');
+  //   }
+ 
+
+
+ 
+
 </script>
 <%- include("../../views/partials/user/footer") %>

@@ -53,7 +53,7 @@ const login = async (req,res) => {
 
 const loadDashboard = async (req,res) => {
     if (!req.session.admin) {
-        return res.redirect('/admin-login');
+        return res.redirect('/admin/login');
     } 
 
      

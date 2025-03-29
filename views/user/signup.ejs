@@ -148,6 +148,19 @@
         .header{
             display: none;
         }
+        .toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+}
+.form-group {
+    position: relative;
+}
+.eye{
+    color: #98780d;
+}
     </style>
 </head>
 <body>
@@ -179,12 +192,23 @@
             <div class="form-group">
                 <label for="password"></label>
                 <input type="password" id="password" name="password" placeholder="Password" >
+                <span class="toggle-password" onclick="togglePassword('password', 'toggleIcon1')">
+                <i id="toggleIcon1" data-lucide="eye" class="eye"></i>
+                </span>
                 <div id="error4" class="error-message"></div>
             </div>
             <div class="form-group">
                 <label for="confirmPassword"></label>
                 <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm Password" >
+                <span class="toggle-password" onclick="togglePassword('confirmPassword', 'toggleIcon2')">
+                    <i id="toggleIcon2" data-lucide="eye" class="eye"></i>
+                    </span>
                 <div id="error5" class="error-message"></div>
+            </div>
+            <div class="form-group">
+                <label for="Referral Code"></label>
+                <input type="text" id="referalCode" name="referralCode" placeholder="Referral Code" >
+                <!-- <div id="error2" class="error-message"></div> -->
             </div>
             <%if(locals.message && message.length>0){%>
                 <div class="alert alert-danger text-center">
@@ -209,7 +233,34 @@
         </div>
     </div>
 
+    <script src="https://unpkg.com/lucide@latest"></script>
     <script>
+         lucide.createIcons()
+
+function togglePassword(inputId, iconId) {
+    let passwordInput = document.getElementById(inputId);
+    let toggleIcon = document.getElementById(iconId);
+
+    if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+        toggleIcon.setAttribute("data-lucide", "eye-off");
+    } else {
+        passwordInput.type = "password";
+        toggleIcon.setAttribute("data-lucide", "eye");
+    }
+    lucide.createIcons();
+}
+
+
+
+    
+    
+
+
+    
+    //validation
+
+
         const fnameid = document.getElementById('firstName')
         const emailid= document.getElementById('email')
         const phoneid= document.getElementById('phone')

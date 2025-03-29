@@ -6,6 +6,8 @@ const User = require('../../models/userSchema')
 const getWishlist = async (req,res) => {
     try {
         const userId = req.session.user  
+
+        const user = await User.findOne({_id:userId})
         const wishlist = await Wishlist.findOne({ userId }).populate({
             path: 'products.productId',
             select: 'productName productImage sizes',
@@ -13,6 +15,7 @@ const getWishlist = async (req,res) => {
 
         res.render("wishlist", {
             wishlist: wishlist ? wishlist.products : [],
+            user
         });
  
         

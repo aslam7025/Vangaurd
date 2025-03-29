@@ -8,18 +8,56 @@ const ExcelJS = require("exceljs");
 
 
 
+ 
 
 
-
-const getSalesReport = async (req,res)=> {
+const getSalesReport = async (req, res) => {
     try {
+        console.log('sales:', req.query);
 
-        console.log('sales:',req.query)
-
-        const { page = 1, day, date } = req.query;
+        const { page = 1, day, startDate, endDate } = req.query;
         const limit = 10;
         const skip = (page - 1) * limit;
-        let query = { status: { $in: ["Confirmed", "Delivered"] } }; // <-- Filter orders by status
+        let query = { status: { $in: ["Confirmed", "Delivered"] } }; 
+        let errors = [];
+
+        // Validate date format and range
+        if (startDate && endDate) {
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            const today = new Date();
+
+            start.setHours(0, 0, 0, 0);
+            end.setHours(23, 59, 59, 999);
+
+            if (isNaN(start) || isNaN(end)) {
+                errors.push("Invalid date format.");
+            }
+            if (start > end) {
+                errors.push("Start Date cannot be later than End Date.");
+            }
+            if (start > today || end > today) {
+                errors.push("Future dates are not allowed.");
+            }
+
+            if (errors.length > 0) {
+                return res.render('sales-report', { 
+                    errors, 
+                    data: [], 
+                    currentPage: parseInt(page), 
+                    totalPages: 1, 
+                    startDate, 
+                    endDate, 
+                    day, 
+                    totalOrders: 0,
+                    totalSales: 0,
+                    totalDiscounts: 0,
+                    grandTotal: 0
+                });
+            }
+
+            query.createdOn = { $gte: start, $lte: end };
+        }
 
         let filterFlags = {
             salesToday: false,
@@ -29,12 +67,13 @@ const getSalesReport = async (req,res)=> {
         };
 
         const setDateFilter = (daysBack = 0) => {
-            const startDate = new Date();
-            startDate.setDate(startDate.getDate() - daysBack);
-            startDate.setHours(0, 0, 0, 0);
-            return { $gte: startDate };
+            const date = new Date();
+            date.setDate(date.getDate() - daysBack);
+            date.setHours(0, 0, 0, 0);
+            return { $gte: date };
         };
 
+        // Filter by predefined ranges
         switch (day) {
             case 'salesToday':
                 query.createdOn = setDateFilter(0);
@@ -54,14 +93,6 @@ const getSalesReport = async (req,res)=> {
                 break;
         }
 
-        if (date) {
-            const startOfDay = new Date(date);
-            startOfDay.setHours(0, 0, 0, 0);
-            const endOfDay = new Date(date);
-            endOfDay.setHours(23, 59, 59, 999);
-            query.createdOn = { $gte: startOfDay, $lte: endOfDay };
-        }
-
         const orders = await Order.find(query)
             .populate({
                 path: 'orderedItems.product',
@@ -75,7 +106,8 @@ const getSalesReport = async (req,res)=> {
             .lean();
 
         const allOrders = await Order.find(query).lean();
-       console.log(allOrders)
+        console.log(allOrders);
+
         const salesMetrics = allOrders.reduce((acc, order) => ({
             totalOrders: acc.totalOrders + 1,
             totalSales: acc.totalSales + (order.totalPrice || 0),
@@ -94,24 +126,24 @@ const getSalesReport = async (req,res)=> {
             data: orders,
             currentPage: parseInt(page),
             totalPages,
-            date,
+            startDate,
+            endDate,
             day,
             ...filterFlags,
             ...salesMetrics
         });
-    
+
     } catch (error) {
-        console.error(error)
-        res.status(500).json({message:'Internal server error'})
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
     }
-}
+};
 
 
 
 
 const downloadPDF = async (req, res) => {
     try {
-
         let { day, startDate, endDate } = req.query;
         let query = {};
 
@@ -135,7 +167,6 @@ const downloadPDF = async (req, res) => {
         if ((!startDate || !endDate || startDate.trim() === '' || endDate.trim() === '') && fromDate) {
             startDate = fromDate.toISOString().split("T")[0];
             endDate = toDate.toISOString().split("T")[0];
-
         }
 
         if (!startDate || !endDate || startDate.trim() === '' || endDate.trim() === '') {
@@ -153,96 +184,103 @@ const downloadPDF = async (req, res) => {
         end.setUTCHours(23, 59, 59, 999);
 
         query.createdOn = { $gte: start, $lte: end };
-        query.status = { $in: ["Confirmed", "Delivered"] }; // Ensure only confirmed & delivered orders
-
+        query.status = { $in: ["Confirmed", "Delivered"] };
 
         const orders = await Order.find(query)
-        .populate('userId', 'firstName email') // Populate user details
-        .populate({
-            path: 'orderedItems.product', // Populate product details
-            model: 'Product',
-            select: 'productName' // Only fetch productName to reduce data load
-        })
-        .sort({ createdOn: -1 })
-        .lean();
-    
+            .populate('userId', 'firstName email')
+            .populate({
+                path: 'orderedItems.product',
+                model: 'Product',
+                select: 'productName'
+            })
+            .sort({ createdOn: -1 })
+            .lean();
 
         if (orders.length === 0) {
             return res.status(404).json({ message: "No orders found for the selected date range." });
         }
-        
+
+        let totalSales = 0;
+        let totalDiscount = 0;
+        let totalOrders = orders.length;
+
+        orders.forEach(order => {
+            totalSales += order.finalAmount || 0;
+            totalDiscount += order.discount || 0;
+        });
+
         const doc = new PDFDocument({ margin: 50, size: 'A4' });
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', 'attachment; filename=salesReport.pdf');
         doc.pipe(res);
 
-        // Table configuration
+        // Header Title
+        doc.fontSize(14).font('Helvetica-Bold').text('Sales Report', { align: 'center' });
+        doc.moveDown(1);
+
+        // Sales Summary Section
+        doc.fontSize(11).font('Helvetica-Bold').text("Sales Summary", { underline: true });
+        doc.moveDown(0.5);
+        doc.fontSize(10).font('Helvetica')
+            .text(`Total Orders: ${totalOrders}`)
+            .text(`Total Sales: ₹${totalSales.toFixed(2)}`)
+            .text(`Total Discount: ₹${totalDiscount.toFixed(2)}`);
+        doc.moveDown(1.5);
+
+        // Table Configuration
         const columnConfig = [
-            { header: 'Order ID', width: 90, align: 'left' },
-            { header: 'User', width: 130, align: 'left' },
-            { header: 'Total (₹)', width: 70, align: 'right' },
-            { header: 'Discount (₹)', width: 80, align: 'right' },
+            { header: 'Order ID', width: 80, align: 'left' },
+            { header: 'User', width: 100, align: 'left' },
+            { header: 'Total (₹)', width: 70, align: 'center' },
+            { header: 'Discount (₹)', width: 70, align: 'center' },
             { header: 'Date', width: 90, align: 'center' },
-            { header: 'Items', width: 150, align: 'left' }
+            { header: 'Items', width: 130, align: 'left' }
         ];
 
-        const rowHeight = 30;
+        const rowHeight = 25;
         const headerColor = '#f0f0f0';
         let currentY = doc.y;
+        let startX = doc.x;
         let pageNumber = 1;
 
         // Function to draw headers
         const drawHeader = () => {
-            doc.font('Helvetica-Bold').fontSize(12);
-            let x = 50;
+            doc.font('Helvetica-Bold').fontSize(10);
+            let x = startX;
             columnConfig.forEach((col) => {
-                doc.rect(x, currentY, col.width, rowHeight)
-                   .fillAndStroke(headerColor, '#000');
-                doc.fillColor('#000')
-                   .text(col.header, x + 5, currentY + 10, {
-                       width: col.width - 10,
-                       align: col.align
-                   });
+                doc.rect(x, currentY, col.width, rowHeight).fillAndStroke(headerColor, '#000');
+                doc.fillColor('#000').text(col.header, x + 5, currentY + 8, {
+                    width: col.width - 10,
+                    align: col.align
+                });
                 x += col.width;
             });
             currentY += rowHeight;
-            doc.moveTo(50, currentY).lineTo(x, currentY).stroke();
         };
 
         // Function to add new page
         const addNewPage = () => {
             doc.addPage();
             pageNumber++;
-            currentY = 50; // Reset to top margin
+            currentY = 50;
             drawHeader();
-            
-            // Add footer with page number
-            doc.fontSize(10).text(
-                `Page ${pageNumber}`,
-                50,
-                doc.page.height - 50,
-                { align: 'center' }
-            );
         };
 
-        // Initial header
-        doc.fontSize(18).text('Sales Report', { align: 'center' });
-        doc.moveDown(1.5);
-        currentY = doc.y;
+        // Initial table header
         drawHeader();
 
-        // Draw data rows
-        doc.font('Helvetica').fontSize(10);
-        orders.forEach((order, rowIndex) => {
-            // Check page boundaries
-            if (currentY > doc.page.height - 100) {
-                addNewPage();
-            }
+        // Function to draw data rows with proper text wrapping
+        const drawDataRows = () => {
+            doc.font('Helvetica').fontSize(9); // Reduce font size
 
-            const items = order.orderedItems
-            .map(item => `${item.product?.productName || 'Unknown'} x${item.quantity}`)
+            orders.forEach((order) => {
+                if (currentY + rowHeight > doc.page.height - 80) {
+                    addNewPage(); // Move to new page if space is insufficient
+                }
 
-                .join('\n');
+                const items = order.orderedItems
+                    .map(item => `${item.product?.productName || 'Unknown'} x${item.quantity}`)
+                    .join('\n');
 
                 const rowData = [
                     order.orderId || "Unknown",
@@ -252,43 +290,46 @@ const downloadPDF = async (req, res) => {
                     (order.createdOn ? order.createdOn.toISOString().split('T')[0] : "Unknown"),
                     items || "Unknown"
                 ];
-                
 
-            // Calculate max height for the row
-            let maxCellHeight = rowHeight;
-            columnConfig.forEach((col, colIndex) => {
-                const textHeight = doc.heightOfString(rowData[colIndex], {
-                    width: col.width - 10
+                let maxCellHeight = rowHeight;
+
+                // Calculate dynamic row height based on content length
+                columnConfig.forEach((col, colIndex) => {
+                    const textHeight = doc.heightOfString(rowData[colIndex], {
+                        width: col.width - 10
+                    });
+                    maxCellHeight = Math.max(maxCellHeight, textHeight + 12); // Adjust padding
                 });
-                maxCellHeight = Math.max(maxCellHeight, textHeight + 20);
+
+                if (currentY + maxCellHeight > doc.page.height - 80) {
+                    addNewPage();
+                }
+
+                let x = startX;
+                columnConfig.forEach((col, colIndex) => {
+                    doc.rect(x, currentY, col.width, maxCellHeight).stroke();
+                    doc.fillColor('#333')
+                        .text(rowData[colIndex], x + 5, currentY + 6, {
+                            width: col.width - 10,
+                            align: col.align,
+                            lineBreak: true
+                        });
+                    x += col.width;
+                });
+
+                currentY += maxCellHeight;
+                doc.moveTo(startX, currentY).lineTo(x, currentY).stroke();
             });
+        };
 
-            // Check if we need a new page before drawing row
-            if (currentY + maxCellHeight > doc.page.height - 50) {
-                addNewPage();
-            }
-
-            // Draw cells
-            let x = 50;
-            columnConfig.forEach((col, colIndex) => {
-                doc.rect(x, currentY, col.width, maxCellHeight).stroke();
-                doc.fillColor('#333')
-                   .text(rowData[colIndex], x + 5, currentY + 10, {
-                       width: col.width - 10,
-                       align: col.align
-                   });
-                x += col.width;
-            });
-
-            currentY += maxCellHeight;
-            doc.moveTo(50, currentY).lineTo(x, currentY).stroke();
-        });
+        // Draw data rows
+        drawDataRows();
 
         // Add final footer
-        doc.fontSize(10).text(
+        doc.fontSize(9).text(
             `Page ${pageNumber}`,
             50,
-            doc.page.height - 50,
+            doc.page.height - 40,
             { align: 'center' }
         );
 
@@ -299,6 +340,8 @@ const downloadPDF = async (req, res) => {
 };
 
 
+
+ 
 
 
 
@@ -395,7 +438,7 @@ const downloadExcel = async (req, res) => {
                     finalAmount: order.finalAmount,
                     discount: order.discount || 0,
                     createdOn: order.createdOn.toDateString(),
-                    productName: "No Products", // ✅ FIXED
+                    productName: "No Products",  
                     quantity: 0
                 });
             } else {
@@ -407,7 +450,7 @@ const downloadExcel = async (req, res) => {
                         finalAmount: order.finalAmount ,
                         discount: order.discount || 0,
                         createdOn: order.createdOn.toDateString(),
-                        productName: item.product?.productName || "Unknown Product", // ✅ FIXED
+                        productName: item.product?.productName || "Unknown Product",  
                         quantity: item.quantity
                     });
                 });

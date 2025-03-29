@@ -49,8 +49,9 @@ const userSchema = new Schema({
         ref:"Cart"
     }],
     wallet:{
-        type:Number,
-        default:0,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Wallet",
+        default: null, 
     },
     wishlist:[{
         type:Schema.Types.ObjectId,
@@ -66,9 +67,9 @@ const userSchema = new Schema({
         default:Date.now,
         
     },
-    referalCode:{
+    referralCode:{
         type:String,
-        // required:true
+        unique:true
     },
     redeemed:{
         type:Boolean
@@ -76,7 +77,7 @@ const userSchema = new Schema({
     redeemedUsers:[{
         type:Schema.Types.ObjectId,
         ref:"User",
-        // required:true
+        
 
     }],
     searchHistory: [{

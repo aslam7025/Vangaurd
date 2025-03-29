@@ -28,6 +28,9 @@
             align-items: center;
             padding: 1rem 1.5rem;
         }
+        .form-select{
+            background-color:#2599a7 ;
+        }
         .badge-sales { background-color: #4e73df; }
         .product-thumb { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; }
         .section-title { font-size: 1.25rem; font-weight: 600; margin-bottom: 1.5rem; }
@@ -56,7 +59,7 @@
                 <div class="card stats-card">
                     <div class="card-body">
                         <h5 class="card-title"><i class="fas fa-filter me-2"></i>Filter</h5>
-                        <select id="filter" class="form-select bg-transparent text-white" onchange="updateChart()">
+                        <select id="filter" class="form-select  text-black" onchange="updateChart()">
                             <option value="yearly">Yearly</option>
                             <option value="monthly">Monthly</option>
                             <option value="weekly">Weekly</option>

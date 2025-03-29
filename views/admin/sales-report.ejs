@@ -27,6 +27,32 @@
             padding: 1.5rem;
             margin-bottom: 2rem;
         }
+        .alert-danger {
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 15px;
+    background: linear-gradient(135deg, #f43726, #a70909);
+    border: 1px solid white;
+    color:white;
+    transition: all 0.3s ease-in-out;
+}
+
+.alert-danger ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.alert-danger li {
+    padding: 5px 0;
+}
+
+.alert-danger:hover {
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
     </style>
 </head>
 <body class="bg-light">
@@ -35,33 +61,54 @@
             <i class="fas fa-chart-line me-2"></i>Sales Analytics Dashboard
         </h2>
 
+
+        <% if (typeof errors !== "undefined" && errors.length > 0) { %>
+            <div class="alert alert-danger">
+                <ul class="mb-0">
+                    <% errors.forEach(error => { %>
+                        <li><%= error %></li>
+                    <% }); %>
+                </ul>
+            </div>
+        <% } %>
+        
         <!-- Filter Section -->
-        <div class="filter-card shadow-sm">
-            <form action="/admin/sales-report" method="GET">
-                <div class="row g-3 align-items-end">
-                    <div class="col-md-3">
-                        <label class="form-label text-secondary">Filter Type</label>
-                        <select name="day" class="form-select" onchange="this.form.submit()">
-                            <option value="">All Time</option>
-                            <option value="salesToday" <%= day === "salesToday" ? "selected" : "" %>>Today</option>
-                            <option value="salesWeekly" <%= day === "salesWeekly" ? "selected" : "" %>>This Week</option>
-                            <option value="salesMonthly" <%= day === "salesMonthly" ? "selected" : "" %>>This Month</option>
-                            <option value="salesYearly" <%= day === "salesYearly" ? "selected" : "" %>>This Year</option>
-                            
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label text-secondary">Custom Date</label>
-                        <input type="date" name="date" value="<%= date || '' %>" class="form-control">
-                    </div>
-                    <div class="col-md-2">
-                        <button type="submit" class="btn btn-primary w-100">
-                            <i class="fas fa-filter me-2"></i>Apply
-                        </button>
-                    </div>
-                </div>
-            </form>
+<!-- Filter Section -->
+<div class="filter-card shadow-sm">
+    <form action="/admin/sales-report" method="GET">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label text-secondary">Filter Type</label>
+                <select name="day" class="form-select" onchange="this.form.submit()">
+                    <option value="">All Time</option>
+                    <option value="salesToday" <%= day === "salesToday" ? "selected" : "" %>>Today</option>
+                    <option value="salesWeekly" <%= day === "salesWeekly" ? "selected" : "" %>>This Week</option>
+                    <option value="salesMonthly" <%= day === "salesMonthly" ? "selected" : "" %>>This Month</option>
+                    <option value="salesYearly" <%= day === "salesYearly" ? "selected" : "" %>>This Year</option>
+                </select>
+            </div>
+
+            <!-- Start Date -->
+            <div class="col-md-3">
+                <label class="form-label text-secondary">Start Date</label>
+                <input type="date" name="startDate" value="<%= startDate || '' %>" class="form-control">
+            </div>
+
+            <!-- End Date -->
+            <div class="col-md-3">
+                <label class="form-label text-secondary">End Date</label>
+                <input type="date" name="endDate" value="<%= endDate || '' %>" class="form-control">
+            </div>
+
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-filter me-2"></i>Apply
+                </button>
+            </div>
         </div>
+    </form>
+</div>
+
 
         <!-- Sales Summary Cards -->
         <div class="row g-4 mb-5">
@@ -118,67 +165,15 @@
             </div>
         </div>
 
-        <!-- Sales Table -->
-        <div class="table-responsive shadow-sm">
-            <table class="table table-hover table-borderless bg-white">
-                <thead class="table-light">
-                    <tr>
-                        <th class="ps-4">Order ID</th>
-                        <th>Date</th>
-                        <th>Customer</th>
-                        <th>Amount</th>
-                        <th>Discount</th>
-                        <th class="pe-4">Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% if (data.length > 0) { %>
-                        <% data.forEach(order => { %>
-                            <tr>
-                                <td class="ps-4"><%= order._id %></td>
-                                <td><%= new Date(order.createdOn).toLocaleDateString('en-IN') %></td>
-                                <td><%= order.userId.firstName %> <%= order.userId.lastName %></td>
-                                <td class="text-success">₹<%= order.totalPrice.toLocaleString('en-IN') %></td>
-                                <td class="text-danger">₹<%= (order.discount || 0).toLocaleString('en-IN') %></td>
-                                <td class="pe-4">
-                                    <span class="badge bg-success rounded-pill">Completed</span>
-                                </td>
-                            </tr>
-                        <% }) %>
-                    <% } else { %>
-                        <tr>
-                            <td colspan="6" class="text-center py-5 text-muted">
-                                <i class="fas fa-database fa-2x mb-3"></i><br>
-                                No sales records found
-                            </td>
-                        </tr>
-                    <% } %>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Pagination -->
-        <% if (totalPages > 1) { %>
-            <nav class="mt-4">
-                <ul class="pagination justify-content-center">
-                    <% for (let i = 1; i <= totalPages; i++) { %>
-                        <li class="page-item <%= currentPage === i ? 'active' : '' %>">
-                            <a class="page-link" href="?page=<%= i %>&day=<%= day %>&date=<%= date %>"><%= i %></a>
-                        </li>
-                    <% } %>
-                </ul>
-            </nav>
-        <% } %>
-
         <!-- Export Section -->
         <div class="mt-5 text-center">
             <h5 class="text-secondary mb-4">Export Reports</h5>
             <div class="d-flex justify-content-center gap-3">
-                <a href="/admin/download-excel?day=<%= day %>&date=<%= date %>" 
+                <a href="/admin/download-excel?day=<%= day %>&startDate=<%= startDate %>&endDate=<%= endDate %>" 
                    class="btn btn-lg btn-success px-4">
                     <i class="fas fa-file-excel me-2"></i>Excel
                 </a>
-                <a href="/admin/download-pdf?day=<%= day %>&date=<%= date %>" 
+                <a href="/admin/download-pdf?day=<%= day %>&startDate=<%= startDate %>&endDate=<%= endDate %>" 
                    class="btn btn-lg btn-danger px-4">
                     <i class="fas fa-file-pdf me-2"></i>PDF
                 </a>
@@ -187,10 +182,48 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-
-
-    </script>
 </body>
 </html>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.querySelector("form");
+        const startDateInput = document.querySelector('input[name="startDate"]');
+        const endDateInput = document.querySelector('input[name="endDate"]');
+        const filterSelect = document.querySelector('select[name="day"]');
+
+        form.addEventListener("submit", function (event) {
+            const startDate = new Date(startDateInput.value);
+            const endDate = new Date(endDateInput.value);
+            const today = new Date();
+
+            // Ensure startDate and endDate are both provided together
+            if ((startDateInput.value && !endDateInput.value) || (!startDateInput.value && endDateInput.value)) {
+                alert("Please select both Start Date and End Date.");
+                event.preventDefault();
+                return;
+            }
+
+            // Ensure startDate is not greater than endDate
+            if (startDateInput.value && endDateInput.value && startDate > endDate) {
+                alert("Start Date cannot be later than End Date.");
+                event.preventDefault();
+                return;
+            }
+
+            // Prevent selecting future dates (if required)
+            if (startDate > today || endDate > today) {
+                alert("Future dates are not allowed.");
+                event.preventDefault();
+                return;
+            }
+
+            // Disable date fields if a predefined filter is selected
+            if (filterSelect.value !== "") {
+                startDateInput.value = "";
+                endDateInput.value = "";
+            }
+        });
+    });
+</script>
+
 <%- include("../../views/partials/admin/footer") %>

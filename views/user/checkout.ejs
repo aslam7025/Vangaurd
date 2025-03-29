@@ -175,6 +175,10 @@
     gap: 0.5rem;
     align-items: center;
 }
+.list-group{
+    height: 200px;
+    overflow: scroll;
+}
 
 </style>
 
@@ -378,18 +382,14 @@
                     <input type="hidden" id="taxAmountValue" value="<%= taxAmount ? taxAmount : 0 %>">
                 </div>
     
-                <% if (coupons && coupons.length > 0) { %>
-                    <% coupons.forEach(coupon => { %>
-                        <button class="btn" onclick="placeOrder('<%= user._id %>','<%= totalPrice %>','<%= coupon.offerPrice %>','<%= taxAmount %>')">
+           
+                        <button class="btn" onclick="placeOrder('<%= user._id %>','<%= totalPrice %>', '<%= coupons.length > 0 ? coupons[0].offerPrice : 0 %>', '<%= taxAmount %>')">
                             Place Order
                         </button>
-                    <% }) %>
-                <% } else { %>
-                    <button class="btn" onclick="placeOrder('<%= user._id %>','<%= totalPrice %>','0','<%= taxAmount %>')">
-                        Place Order
-                    </button>
-                <% } %>
-                
+                        
+                  
+                    
+                 
             </div>
         </div>
         
@@ -606,6 +606,7 @@ async function createRazorpayOrder(amount,discount) {
 
 
 function openRazorpayCheckout(order,amount,discount) {
+    console.log('is this working....')
     
     const userId = "<%=user.id%>"
     const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked').value;
@@ -641,7 +642,6 @@ function openRazorpayCheckout(order,amount,discount) {
 
             
             const result = await res.json();
-            console.log("working after success",result)
             if (result.success ) {
                 Swal.fire({
                     icon: "success",
@@ -651,24 +651,81 @@ function openRazorpayCheckout(order,amount,discount) {
                     window.location.href = "/order-success";
                 });
             } else {
+                console.log("working after failed",result)
                 Swal.fire({
                     icon: "error",
                     title: "Payment Failed",
                     text: result.error || "There was an issue with the payment.",
-                });
+                }).then(()=>{
+                    window.location.href = '/order-failed'
+                })
             }
         } catch (error) {
             Swal.fire({
                 icon: "error",
                 title: "Order Error",
                 text: "Something went wrong while placing your order.",
-            });
+            }).then(()=> {
+                window.location.href = '/order-failed'
+            })
         }
-    }
+    },
         
+    }
+
+    var rzp = new Razorpay(options)
+   
+    rzp.on("payment.failed", async function (response) {
+    console.log(" Payment Failed response 1:", response);
+
+    const paymentData = {
+        userId: userId,   
+        addressId: selectedAddress,
+        totalPrice:amount,
+        discount:discount,
+        paymentMethod: "razorpay",
+        razorpayPaymentId: response.error.metadata.payment_id,   
+        razorpayOrderId: response.error.metadata.order_id,     
+       // razorpaySignature: response.razorpay_signature  
     };
 
-    var rzp = new Razorpay(options);
+    try {
+        const res = await fetch("/create-failed-order", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(paymentData),
+        });
+
+        const result = await res.json();
+        if (result.success) {
+            console.log('payment failed result 2',result)
+            Swal.fire({
+                icon: "error",
+                title: "Payment Failed",
+                text: "Your payment has failed. You can retry from the Orders page.",
+            }).then(() => {
+                window.location.href = "/order-failed";  
+            });
+        } else {
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: "Failed to save order. Please contact support.",
+            }).then(() => {
+                window.location.href = "/order-failed";  
+            });
+        }
+    } catch (error) {
+        Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "Something went wrong. Please try again.",
+        }).then(() => {
+            window.location.href = "/order-failed";  
+        });
+    }
+});
+
     rzp.open();
 }
 

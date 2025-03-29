@@ -29,7 +29,7 @@ const getWallet = async (req,res)=> {
             return res.render('profile',{wallet:newwallet})
         }
 
-        res.render('wallet',{wallet})
+        //res.render('wallet',{wallet})
 
         
     } catch (error) {
