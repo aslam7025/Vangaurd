@@ -138,6 +138,7 @@
                             <tr>
                                 <th style="width: 15%; min-width: 150px;">Date</th>
                                 <th style="width: 15%;">Transaction ID</th>
+                                <th style="width: 15%;">User</th>
                                 <th style="width: 40%;">Description</th>
                                 <th style="width: 15%;">Type</th>
                                 <th style="width: 15%;">Amount</th>
@@ -159,12 +160,12 @@
                         
                                     <!-- User Details -->
                                     <td>
-                                        <%= txn.user?.name || "Unknown User" %>  
+                                        <%= txn.user?.firstName || "Unknown User" %>  
                                         <br>
                                         <small style="color: grey;"><%= txn.user?.email || "No Email" %></small>
                                     </td>
                         
-                                    <!-- Description -->
+                                    Description
                                     <td style="max-width: 300px; white-space: normal;">
                                         <%= txn.transactions.description %>
                                     </td>
@@ -192,11 +193,7 @@
                                                 View Order
                                             </a>
                                         <% } else { %>
-                                            <a href="/admin/wallet-details?transactionId=<%= txn.transactions._id %>" 
-                                                class="btn btn-sm btn-primary" 
-                                                style="padding: 0.25rem 0.75rem; font-size: 0.85rem; transition: all 0.3s ease;">
-                                                View Details
-                                            </a>
+                                             <h5>NA</h5>
                                         <% } %>
                                     </td>
                                 </tr>

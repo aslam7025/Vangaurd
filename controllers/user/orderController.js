@@ -624,7 +624,7 @@ const viewOrders = async (req, res) => {
 
 const cancelOrder = async (req, res) => {
     try {
-        console.log("order:", req.body);
+        console.log('vrunnu')
         const { orderId, itemId } = req.body;
         const userId = req.session.user;
 
@@ -645,14 +645,14 @@ const cancelOrder = async (req, res) => {
 
         const cancelledItem = findOrder.orderedItems[itemIndex];
 
-        // Restore stock only if product exists
+        
         const product = await Product.findById(cancelledItem.product);
         if (product) {
             product.quantity += cancelledItem.quantity;
             await product.save();
         }
 
-        // Handle Wallet Refund for prepaid orders
+        
         if (findOrder.paymentMethod === "razorpay" || findOrder.paymentMethod === "wallet") {
             let wallet = await Wallet.findOne({ userId: userId });
 
@@ -674,17 +674,17 @@ const cancelOrder = async (req, res) => {
             await wallet.save();
         }
 
-        // Update only the specific item's status
+        
         findOrder.orderedItems[itemIndex].productStatus = "Cancelled";
 
-        // Check if all items in the order are cancelled
+        
         const allItemsCancelled = findOrder.orderedItems.every(item => item.productStatus === "Cancelled");
         if (allItemsCancelled) {
             findOrder.status = "Cancelled";
         }
 
 
-        console.log('from cancel findorder',findOrder)
+        
         await findOrder.save();
 
         return res.status(200).json({ message: "Item cancelled successfully" });

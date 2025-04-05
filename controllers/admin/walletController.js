@@ -3,25 +3,44 @@ const Order = require('../../models/orderSchema')
 const User = require('../../models/userSchema')
 const mongoose = require('mongoose');
 
-
-
 const getWallet = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1; // Get page number from query, default to 1
         const limit = 10; // Transactions per page
         const skip = (page - 1) * limit;
 
+        // Get total transaction count
         const totalTransactions = await Wallet.aggregate([
-            { $unwind: "$transactions" }, // Flatten transactions array
+            { $unwind: "$transactions" },
             { $count: "count" }
         ]);
 
+        // Fetch transactions with user details
         const transactions = await Wallet.aggregate([
             { $unwind: "$transactions" },
+            { $lookup: { 
+                from: "users", // MongoDB collection name for User (ensure it's lowercase in MongoDB)
+                localField: "userId",
+                foreignField: "_id",
+                as: "user"
+            }},
+            { $unwind: "$user" }, // Extract user details
             { $sort: { "transactions.createdAt": -1 } },
             { $skip: skip },
-            { $limit: limit }
+            { $limit: limit },
+            {
+                $project: {
+                    "transactions": 1, // Keep transactions
+                    "user._id": 1,  
+                    "user.firstName": 1,
+                    "user.lastName": 1,
+                    "user.email": 1,
+                    "user.phone": 1
+                }
+            }
         ]);
+
+        console.log('from admin wallet', transactions);
 
         const totalPages = Math.ceil((totalTransactions[0]?.count || 0) / limit);
 

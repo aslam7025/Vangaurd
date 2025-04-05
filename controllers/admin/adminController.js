@@ -114,7 +114,7 @@ const loadDashboard = async (req,res) => {
             { $limit: 10 }
         ]);
 
-        console.log('category:',bestSellingCategories)
+        // console.log('category:',bestSellingCategories)
 
        
         const bestSellingBrands = await Order.aggregate([
@@ -146,7 +146,7 @@ const loadDashboard = async (req,res) => {
             { $sort: { _id: 1 } }
         ]);
 
-        console.log('year',yearlySales)
+       // console.log('year',yearlySales)
 
         
         const monthlySales = await Order.aggregate([
@@ -155,7 +155,7 @@ const loadDashboard = async (req,res) => {
             { $sort: { _id: 1 } }
         ]);
 
-        console.log('month',monthlySales)
+      //  console.log('month',monthlySales)
 
         // Weekly Sales Data
         const weeklySales = await Order.aggregate([
@@ -164,7 +164,7 @@ const loadDashboard = async (req,res) => {
             { $sort: { _id: 1 } }
         ]);
 
-        console.log('week',weeklySales)
+     //   console.log('week',weeklySales)
 
         res.render('admin-dashboard', {
             totalSales,

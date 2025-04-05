@@ -617,6 +617,7 @@ function openRazorpayCheckout(order,amount,discount) {
         name: "Vanguard Footwear",
         description: "Order Payment",
         order_id: order.id,
+        retry:false,
         handler:  async function (response) {
 
             console.log('is get :',response)
@@ -633,6 +634,9 @@ function openRazorpayCheckout(order,amount,discount) {
 
 
         try {
+
+ 
+ 
             console.log(paymentData)
             const res = await fetch("/verify-razorpay-payment", {
                 method: "POST",

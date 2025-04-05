@@ -30,7 +30,7 @@ router.get('/logout',adminAuth,adminController.logout)
 
 
 
-router.get('/dashboard',adminAuth,adminController.loadDashboard)
+router.get('/dashboard',isSessionAdmin,adminAuth,adminController.loadDashboard)
 router.get('/users',isSessionAdmin,adminAuth,customerController.customerInfo)
 router.get('/blockCustomer',adminAuth,customerController.customerBlocked )
 router.get('/unblockCustomer',adminAuth,customerController.customerunBlocked)
@@ -98,8 +98,8 @@ router.get('/unblockCustomer',adminAuth,customerController.customerunBlocked)
 
    
   //wallet management
-  router.get('/wallet',adminAuth,walletController.getWallet)
-  router.get('/wallet-details',adminAuth,walletController.getWalletDetails)
+  router.get('/wallet',isSessionAdmin,adminAuth,walletController.getWallet)
+  //router.get('/wallet-details',adminAuth,walletController.getWalletDetails)
 
    
 
