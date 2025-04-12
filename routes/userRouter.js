@@ -126,7 +126,7 @@ router.post('/verify-razorpay-payment',userAuth,orderController.verifyRazorpayPa
 router.get('/order-failed',userAuth,orderController.loadOrderFailed)
 router.post('/create-failed-order',userAuth,orderController.createFailedOrder)
 router.get('/failed-orders',userAuth,orderController.getFailedOrders)
-//router.post('/verify-re-try-payment',userAuth,orderController.verifyRetryPayment)
+ 
 
 //wallet
 router.post('/walletPayment',userAuth,orderController.walletPayment)

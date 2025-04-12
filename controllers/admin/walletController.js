@@ -5,32 +5,32 @@ const mongoose = require('mongoose');
 
 const getWallet = async (req, res) => {
     try {
-        const page = parseInt(req.query.page) || 1; // Get page number from query, default to 1
-        const limit = 10; // Transactions per page
+        const page = parseInt(req.query.page) || 1;  
+        const limit = 10; 
         const skip = (page - 1) * limit;
 
-        // Get total transaction count
+      
         const totalTransactions = await Wallet.aggregate([
             { $unwind: "$transactions" },
             { $count: "count" }
         ]);
 
-        // Fetch transactions with user details
+      
         const transactions = await Wallet.aggregate([
             { $unwind: "$transactions" },
             { $lookup: { 
-                from: "users", // MongoDB collection name for User (ensure it's lowercase in MongoDB)
+                from: "users",  
                 localField: "userId",
                 foreignField: "_id",
                 as: "user"
             }},
-            { $unwind: "$user" }, // Extract user details
+            { $unwind: "$user" }, 
             { $sort: { "transactions.createdAt": -1 } },
             { $skip: skip },
             { $limit: limit },
             {
                 $project: {
-                    "transactions": 1, // Keep transactions
+                    "transactions": 1, 
                     "user._id": 1,  
                     "user.firstName": 1,
                     "user.lastName": 1,
@@ -66,40 +66,7 @@ const getWallet = async (req, res) => {
     }
 };
 
-
-
-const getWalletDetails = async (req,res)=> {
-    try {
-
-        const {transactionId} = req.query
-        console.log(transactionId)
-        const transaction =await Wallet.aggregate(
-            [
-                {
-                    $lookup: {
-                        from: "users", // Collection name in MongoDB
-                        localField: "userId",
-                        foreignField: "_id",
-                        as: "user"
-                    }
-                },
-                {$unwind:"$transactions"},
-                {$match:{'transactions._id':new mongoose.Types.ObjectId(transactionId)}},
-            ]
-        )
-
-        if(transaction.length===0){
-            //redirect
-        }
-        console.log(transaction)
-        res.render('admin-wallet-details',{transaction:transaction[0]})
-        
-    } catch (error) {
-        console.error("Error fetching wallet details:", error);
-        res.status(500).send("Internal Server Error");
-    }
-}
-
+ 
 
 
 
@@ -108,5 +75,5 @@ const getWalletDetails = async (req,res)=> {
 
 module.exports = {
     getWallet,
-    getWalletDetails,
+    
 }

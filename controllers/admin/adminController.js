@@ -82,7 +82,7 @@ const loadDashboard = async (req,res) => {
             { $unwind: "$productDetails" }
         ]);
         
-        console.log('product data :',bestSellingProducts)
+        
         const bestSellingCategories = await Order.aggregate([
             { $unwind: "$orderedItems" },
             { 
@@ -142,8 +142,11 @@ const loadDashboard = async (req,res) => {
         
         const yearlySales = await Order.aggregate([
             { $match: { createdOn: { $gte: new Date(`${currentYear}-01-01`) } } },
-            { $group: { _id: { $month: "$createdOn" }, total: { $sum: "$finalAmount" } } },
-            { $sort: { _id: 1 } }
+            { $group: { 
+                _id: { $month: "$createdOn" }, 
+                total: { $sum: "$finalAmount" } 
+            }},
+            { $sort: { "_id": 1 } }
         ]);
 
        // console.log('year',yearlySales)

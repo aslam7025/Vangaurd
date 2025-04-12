@@ -1,5 +1,11 @@
 <%- include("../../views/partials/user/header") %>
 <head><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Toastify CSS -->
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+
+<!-- Toastify JS -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
 </head>
 <style>
     :root {
@@ -506,7 +512,8 @@ if(paymentMethod === 'COD' && price > 1000){
                     addressId: selectedAddress,
                     totalPrice: total,
                     paymentMethod: paymentMethod,
-                    discount:discountValue
+                    discount:discountValue,
+                    tax:tax
 
                 })
             });
@@ -529,7 +536,7 @@ if(paymentMethod === 'COD' && price > 1000){
             }
        }
        else if(paymentMethod ==='razorpay'){
-            await createRazorpayOrder(total,discountValue)
+            await createRazorpayOrder(total,discountValue,tax)
 
        }
 
@@ -542,6 +549,7 @@ if(paymentMethod === 'COD' && price > 1000){
                     userId: user,
                     addressId: selectedAddress,
                     totalPrice: total,
+                    tax:tax,
                     paymentMethod:paymentMethod,
                     discount:discountValue
                 })
@@ -581,7 +589,7 @@ if(paymentMethod === 'COD' && price > 1000){
 
 
 
-async function createRazorpayOrder(amount,discount) {
+async function createRazorpayOrder(amount,discount,tax) {
     console.log(amount)
     try {
         const response = await fetch("/create-razorpay-order", {
@@ -593,7 +601,7 @@ async function createRazorpayOrder(amount,discount) {
         const data = await response.json();
         console.log('create rzp response:',data)
         if (data.success) {
-            openRazorpayCheckout(data.order,amount,discount);
+            openRazorpayCheckout(data.order,amount,discount,tax);
         } else {
             Swal.fire("Error", "Failed to create Razorpay order", "error");
         }
@@ -605,7 +613,7 @@ async function createRazorpayOrder(amount,discount) {
 
 
 
-function openRazorpayCheckout(order,amount,discount) {
+function openRazorpayCheckout(order,amount,discount,tax) {
     console.log('is this working....')
     
     const userId = "<%=user.id%>"
@@ -626,6 +634,7 @@ function openRazorpayCheckout(order,amount,discount) {
             addressId: selectedAddress,
             totalPrice:amount,
             discount:discount,
+            tax:tax,
             paymentMethod: "razorpay",
             razorpayPaymentId: response.razorpay_payment_id,   
             razorpayOrderId: response.razorpay_order_id,     
@@ -687,6 +696,7 @@ function openRazorpayCheckout(order,amount,discount) {
         addressId: selectedAddress,
         totalPrice:amount,
         discount:discount,
+        tax:tax,
         paymentMethod: "razorpay",
         razorpayPaymentId: response.error.metadata.payment_id,   
         razorpayOrderId: response.error.metadata.order_id,     
@@ -781,15 +791,37 @@ document.getElementById("addAddressForm").addEventListener("submit", async funct
         });
 
         const result = await response.json();
-        if (result.success) {
-            alert(result.message);
+            if (result.success) {
+        Toastify({
+            text: result.message,
+            duration: 2500,
+            gravity: "top", 
+            position: "right", 
+            backgroundColor: "linear-gradient(to right, #00b09b, #96c93d)",
+        }).showToast();
+        setTimeout(() => {
             location.reload();
-        } else {
-            alert(result.message);
-        }
+        }, 2500); // delay reload to let toast show
+    } else {
+        Toastify({
+            text: result.message,
+            duration: 2500,
+            gravity: "top",
+            position: "right",
+            backgroundColor: "#ff5f6d",
+        }).showToast();
+    }
+
     } catch (error) {
         console.error("Error saving address:", error);
-        alert("Failed to save address.");
+        Toastify({
+        text: "Failed to save address.",
+        duration: 3000,
+        gravity: "top",
+        position: "right",
+        backgroundColor: "#ff5f6d",
+        close: true
+    }).showToast();
     }
 });
 

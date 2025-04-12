@@ -99,7 +99,7 @@ router.get('/unblockCustomer',adminAuth,customerController.customerunBlocked)
    
   //wallet management
   router.get('/wallet',isSessionAdmin,adminAuth,walletController.getWallet)
-  //router.get('/wallet-details',adminAuth,walletController.getWalletDetails)
+ 
 
    
 

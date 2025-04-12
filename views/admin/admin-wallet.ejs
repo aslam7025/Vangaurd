@@ -131,7 +131,7 @@
                     </div>
                 </div>
     
-                <!-- Transaction History Table -->
+                
                 <div class="table-responsive">
                     <table class="table table-hover align-middle" style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
                         <thead class="table-dark" style="font-size: 0.95rem;">
@@ -165,12 +165,12 @@
                                         <small style="color: grey;"><%= txn.user?.email || "No Email" %></small>
                                     </td>
                         
-                                    Description
+                                    <!-- Description -->
                                     <td style="max-width: 300px; white-space: normal;">
                                         <%= txn.transactions.description %>
                                     </td>
                         
-                                    <!-- Transaction Type (Credit/Debit) -->
+                               
                                     <td>
                                         <span class="badge <%= txn.transactions.type === 'credit' ? 'bg-success' : 'bg-danger' %>" 
                                             style="font-size: 0.8rem; padding: 0.5em 0.75em; border-radius: 8px;">
@@ -184,7 +184,7 @@
                                         <%= txn.transactions.type === 'credit' ? '+ ' : '- ' %>₹<%= txn.transactions.amount %>
                                     </td>
                         
-                                    <!-- Actions (Link to Wallet Details or Order) -->
+                             
                                     <td style="text-align: end;">
                                         <% if (txn.transactions.orderId) { %>
                                             <a href="/admin/order-details/<%= txn.transactions.orderId %>" 
@@ -205,19 +205,19 @@
                  Pagination 
                  <nav class="mt-4">
                     <ul class="pagination justify-content-center">
-                        <!-- Previous Button -->
+                       
                         <li class="page-item <%= currentPage <= 1 ? 'disabled' : '' %>">
                             <a class="page-link" href="?page=<%= currentPage - 1 %>">Previous</a>
                         </li>
                 
-                        <!-- Page Numbers -->
+                       
                         <% for(let i = 1; i <= totalPages; i++) { %>
                             <li class="page-item <%= currentPage === i ? 'active' : '' %>">
                                 <a class="page-link" href="?page=<%= i %>"><%= i %></a>
                             </li>
                         <% } %>
                 
-                        <!-- Next Button -->
+                         
                         <li class="page-item <%= currentPage >= totalPages ? 'disabled' : '' %>">
                             <a class="page-link" href="?page=<%= currentPage + 1 %>">Next</a>
                         </li>

@@ -24,7 +24,7 @@ const orderPlaced = async (req, res) => {
        
         
          
-        const { userId,totalPrice,addressId,paymentMethod,razorpayPaymentId, razorpayOrderId, razorpaySignature, discount} = req.body;
+        const { userId,totalPrice,addressId,paymentMethod,razorpayPaymentId, razorpayOrderId, razorpaySignature, discount,tax} = req.body;
         
 
         
@@ -102,6 +102,7 @@ const orderPlaced = async (req, res) => {
                 size: item.size 
             })),
             totalPrice,
+            tax:tax,
             discount:discount?discount:0,
             finalAmount:totalAmount,
             address: desiredAddress.toObject(), 
@@ -132,7 +133,7 @@ const walletPayment = async (req,res)=> {
        
 
         console.log('first',req.body)
-        const { userId ,addressId , totalPrice,paymentMethod,discount} = req.body
+        const { userId ,addressId , totalPrice,paymentMethod,discount,tax} = req.body
 
 
         console.log('body',userId,addressId,totalPrice)
@@ -216,6 +217,7 @@ const walletPayment = async (req,res)=> {
             size: item.size
         })),
         totalPrice,
+        tax:tax,
         discount:discount?discount:0,
         finalAmount:totalAmount,
         address:selectedAddress.toObject(),
@@ -261,8 +263,8 @@ const walletPayment = async (req,res)=> {
 
 const verifyRazorpayPayment = async (req,res) => {
     
-    const {userId,addressId,totalPrice,paymentMethod,razorpayOrderId,razorpayPaymentId,razorpaySignature,discount,orderId} =req.body
-    console.log('first working',orderId,totalPrice,razorpayOrderId,razorpayPaymentId,razorpaySignature)
+    const {userId,addressId,totalPrice,paymentMethod,razorpayOrderId,razorpayPaymentId,razorpaySignature,discount,tax,orderId} =req.body
+     
  
     const isSignatureValid = verifySignature(razorpayOrderId, razorpayPaymentId, razorpaySignature)
      
@@ -406,6 +408,7 @@ const verifyRazorpayPayment = async (req,res) => {
             size: item.size
         })),
         totalPrice,
+        tax:tax,
         discount:discount?discount:0,
         finalAmount:totalAmount,
         address:selectedAddress.toObject(),
@@ -504,7 +507,7 @@ const getFailedOrders = async (req,res)=> {
 
 const createFailedOrder = async (req, res) => {
     try {
-        const { userId, addressId, totalPrice, discount, paymentMethod, razorpayPaymentId, razorpayOrderId } = req.body;
+        const { userId, addressId, totalPrice, discount,tax, paymentMethod, razorpayPaymentId, razorpayOrderId } = req.body;
         console.log('first',userId, addressId, totalPrice, discount, paymentMethod, razorpayPaymentId, razorpayOrderId)
 
 
@@ -566,6 +569,7 @@ const createFailedOrder = async (req, res) => {
                 size: item.size
             })),
             totalPrice,
+            tax:tax,
             discount: discount || 0,
             finalAmount: totalAmount,
             address: selectedAddress.toObject(),
@@ -609,11 +613,21 @@ const viewOrders = async (req, res) => {
             path: 'orderedItems.product',
             select: 'productName productImage price productStatus',}).sort({ createdOn: -1 }); 
             
+            // let TAX_RATE = 0.1
 
+            // const ordersWithTax = orders.map(order => {
+            //     const tax = order.totalPrice * TAX_RATE;
+            //     return {
+            //         ...order._doc, // clone original order object
+            //         tax: parseFloat(tax.toFixed(2)), // add tax field with 2 decimals
+            //     };
+            // });
+
+             console.log('from order ',orders)
         
 
       
-        res.render("orders",{orders,user})
+        res.render("orders",{orders,user,})
     } catch (error) {
         console.error("Error fetching orders:", error);
         res.status(500).render('orders', { user: req.session.user, orders: [], error: "Failed to fetch orders." });

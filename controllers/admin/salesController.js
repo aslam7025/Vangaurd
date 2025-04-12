@@ -73,7 +73,7 @@ const getSalesReport = async (req, res) => {
             return { $gte: date };
         };
 
-        // Filter by predefined ranges
+       
         switch (day) {
             case 'salesToday':
                 query.createdOn = setDateFilter(0);

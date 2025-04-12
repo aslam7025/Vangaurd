@@ -1,6 +1,7 @@
 const User = require('../../models/userSchema')
 const Product = require('../../models/productSchema')
 const Order = require('../../models/orderSchema')
+const Wallet = require('../../models/walletSchema')
 
 
 
@@ -125,6 +126,37 @@ const updateStatus = async (req,res) => {
         // Update the order status
         order.status = status;
         await order.save();
+
+
+        if (status === 'Returned') {
+            const refundAmount = order.finalAmount ?? order.totalPrice ?? 0;
+
+            let wallet = await Wallet.findOne({ userId: order.userId._id });
+
+            if (!wallet) {
+                wallet = new Wallet({
+                    userId: order.userId._id,
+                    balance: refundAmount,
+                    transactions: [{
+                        type: 'credit',
+                        amount: refundAmount,
+                        description: `Refund for returned order ${order.orderId || order._id}`,
+                        orderId: order._id
+                    }]
+                });
+            } else {
+                wallet.balance += refundAmount;
+                wallet.transactions.push({
+                    type: 'credit',
+                    amount: refundAmount,
+                    description: `Refund for returned order ${order.orderId || order._id}`,
+                    orderId: order._id
+                });
+            }
+
+            await wallet.save();
+        }
+
 
         res.json({ success: true, message: 'Order status updated successfully', updatedStatus: status });
     } catch (error) {

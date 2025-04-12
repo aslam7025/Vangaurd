@@ -160,11 +160,11 @@ const salesChart = new Chart(ctx, {
 
 
 
-     function updateChart() {
+function updateChart() {
     const filter = document.getElementById('filter').value;
     
     let salesData;
-    
+
     if (filter === "yearly") {
         salesData = JSON.parse(`<%- JSON.stringify(yearlySales || []) %>`);  
     } else if (filter === "monthly") {
@@ -173,15 +173,27 @@ const salesChart = new Chart(ctx, {
         salesData = JSON.parse(`<%- JSON.stringify(weeklySales || []) %>`);
     }
 
-    console.log('Parsed Data:', salesData); // Debugging line
+    const labels = salesData.map(item => {
+        if (filter === "yearly") {
+            // Convert month number to month name
+            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            return monthNames[item._id - 1]; // _id is month number (1-12)
+        } else if (filter === "monthly") {
+            return `Day ${item._id}`;
+        } else if (filter === "weekly") {
+            const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+            return weekDays[item._id - 1]; // _id is day of week (1 = Sunday, 7 = Saturday)
+        }
+        return item._id;
+    });
 
-    const labels = salesData.map(item => item._id);
     const data = salesData.map(item => item.total);
 
     salesChart.data.labels = labels;
     salesChart.data.datasets[0].data = data;
     salesChart.update();
 }
+
 
     </script>
 </body>

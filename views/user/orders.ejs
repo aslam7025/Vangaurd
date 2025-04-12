@@ -375,10 +375,34 @@ h1 {
     }
 
     .checkout-container {
-        max-width: 1200px;
+        max-width:1000px;
         margin: 3rem auto;
         padding: 0 1.5rem;
+        overflow: scroll;
+    height: 550px;
+    border-radius: 25px;
     }
+
+    .checkout-container::-webkit-scrollbar {
+    width: 12px; /* vertical scrollbar width */
+    height: 12px; /* horizontal scrollbar height */
+}
+
+.checkout-container::-webkit-scrollbar-track {
+    background: #f1f1f1; 
+    border-radius: 10px;
+}
+
+.checkout-container::-webkit-scrollbar-thumb {
+    background-color: #888; 
+    border-radius: 10px;
+    border: 3px solid #f1f1f1; /* to create padding around thumb */
+}
+
+.checkout-container::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
 
     h1 {
         font-size: 2.5rem;
@@ -579,6 +603,7 @@ h1 {
     color: white;
 }
 .btn-cancel {
+    margin-top: 40px;
         position: relative;
         padding: 0.8em 1.8em;
         border: 2px solid var(--danger);
@@ -615,7 +640,7 @@ h1 {
     }
 
     .btn-cancel:hover::before {
-        opacity: 0.15;
+        opacity: 0.1;
     }
 
     .btn-cancel:active {
@@ -678,19 +703,46 @@ h1 {
                                 <p>Quantity: <%= item.quantity %></p>
                                 <% if (item.size) { %><p>Size: <%= item.size %></p><% } %>
                                 <% if (item.productStatus === 'Cancelled') { %><p>Status: <span class="product-status"><%= item.productStatus %></span></p><% } %> 
-
                             </div>
                     
-                            <% if ((order.status === 'Pending' || order.status === 'Processing') && (item.productStatus === 'Confirmed' || item.productStatus === 'Processing' ||item.productStatus === 'Pending' )) { %>
+                            <% if ((order.status === 'Pending' || order.status === 'Processing') && (item.productStatus === 'Confirmed' || item.productStatus === 'Processing' || item.productStatus === 'Pending')) { %>
                                 <button type="button" class="btn-cancel" onclick="confirmCancel('<%= order.orderId %>', '<%= item._id %>')">
                                     Cancel Item
                                 </button>
                             <% } %>
+                    
+                            <!-- Buttons placed under each product now -->
+                            <form id="returnForm-<%= order.orderId %>-<%= item._id %>" action="/return-order/<%= order.orderId %>" method="post">
+                                <input type="hidden" name="itemId" value="<%= item._id %>">
+                                <input type="hidden" name="returnReason" id="returnReason-<%= order.orderId %>-<%= item._id %>">
+                    
+                                <div class="btn-group">
+                                    <% if (order.status === 'Delivered'&& item.productStatus != 'Cancelled') { %>
+                                        <button type="button" class="btn btn-danger" onclick="askReturnReason('<%= order.orderId %>', '<%= item._id %>')">
+                                            <i class="fas fa-undo-alt"></i> Return Item
+                                        </button>
+                                    <% } %>
+                                    <a class="btn" href="/order-details/<%= order._id %>">
+                                        <i class="fas fa-info-circle"></i> View Details
+                                    </a>
+                                </div>
+                            </form>
                         </div>
                     <% }); %>
                     
 
+
+
+
+                
                     <div class="price-details">
+                         
+                        <div class="detail-item">
+                            <span>Tax:</span>
+                            <span>
+                                ₹<%= order.tax.toFixed(2)  %>
+                            </span> 
+                        </div>
                         <div class="detail-item">
                             <span>Total Price:</span>
                             <span>₹<%=order.totalPrice %></span>
@@ -699,6 +751,7 @@ h1 {
                             <span>Discount:</span>
                             <span>- ₹<%= order.discount %></span>
                         </div>
+                        
                         <div class="detail-item total-price">
                             <span>Final Amount:</span>
                             <span>₹<%= order.finalAmount %></span>
@@ -707,25 +760,10 @@ h1 {
                     </div>
                     
                     
-                         
-                    <form id="returnForm-<%= order.orderId %>" action="/return-order/<%= order.orderId %>" method="post">
-                        <input type="hidden" name="returnReason" id="returnReason-<%= order.orderId %>">
-                        <div class="btn-group">
-                            <% if (order.status === 'Delivered') { %>
-                                <button type="button" class="btn btn-danger" onclick="askReturnReason('<%= order.orderId %>')">
-                                    <i class="fas fa-undo-alt"></i> Return Order
-                                </button>
-                            <% } %>
-                            <a class="btn " href="/order-details/<%= order._id %>">
-                                <i class="fas fa-info-circle"></i> View Details
-                            </a>
-                        </div>
-                    </form>  
+                     
                                   
 
-                    <!-- <a class="btn" href="/order-details/<%= order._id %>">
-                        View Details
-                    </a> -->
+                   
                 </div>
             <% }); %>
         <% } %>

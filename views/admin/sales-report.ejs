@@ -165,6 +165,55 @@
             </div>
         </div>
 
+
+        <!-- Sales Data Table -->
+<div class="card shadow-sm mt-5">
+    <div class="card-header bg-white border-bottom">
+        <h5 class="mb-0 text-primary fw-bold"><i class="fas fa-table me-2"></i>Sales Transactions</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Date</th>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Payment</th>
+                        <!-- <th>Status</th> -->
+                        <th>Total (₹)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (data && data.length > 0) { %>
+                        <% data.forEach((order, index) => { %>
+                            <tr>
+                                <td><%= index + 1 %></td>
+                                <td><%= new Date(order.createdOn).toLocaleDateString('en-IN') %></td>
+                                <td><%= order.orderId %></td>
+                                <td><%= order.userId?.firstName || 'NA' %></td>
+                                <td><%= order.paymentMethod %></td>
+                                <!-- <td>
+                                    <span class="badge bg-<%= order.status === 'Delivered' ? 'success' : order.status === 'Cancelled' ? 'danger' : 'secondary' %>">
+                                        <%= order.status %>
+                                    </span>
+                                </td> -->
+                                <td><%= order.finalAmount.toLocaleString('en-IN') %></td>
+                            </tr>
+                        <% }) %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted">No sales data found for the selected filters.</td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
         <!-- Export Section -->
         <div class="mt-5 text-center">
             <h5 class="text-secondary mb-4">Export Reports</h5>
@@ -181,9 +230,13 @@
         </div>
     </div>
 
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-</html>
+</html> 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         const form = document.querySelector("form");
@@ -198,21 +251,39 @@
 
             // Ensure startDate and endDate are both provided together
             if ((startDateInput.value && !endDateInput.value) || (!startDateInput.value && endDateInput.value)) {
-                alert("Please select both Start Date and End Date.");
+                Toastify({
+                    text: "Please select both Start Date and End Date.",
+                    duration: 3000,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: "#ff6b6b"
+                }).showToast();
                 event.preventDefault();
                 return;
             }
 
             // Ensure startDate is not greater than endDate
             if (startDateInput.value && endDateInput.value && startDate > endDate) {
-                alert("Start Date cannot be later than End Date.");
+                Toastify({
+                    text: "Start Date cannot be later than End Date.",
+                    duration: 3000,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: "#ff6b6b"
+                }).showToast();
                 event.preventDefault();
                 return;
             }
 
-            // Prevent selecting future dates (if required)
+            // Prevent selecting future dates
             if (startDate > today || endDate > today) {
-                alert("Future dates are not allowed.");
+                Toastify({
+                    text: "Future dates are not allowed.",
+                    duration: 3000,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: "#ff6b6b"
+                }).showToast();
                 event.preventDefault();
                 return;
             }
@@ -225,5 +296,6 @@
         });
     });
 </script>
+
 
 <%- include("../../views/partials/admin/footer") %>
